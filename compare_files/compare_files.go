@@ -11,7 +11,7 @@ import (
 	"strings"
 )
 
-var f1NotF2 = 0
+var f1Notf2 = 0
 var f2NotF1 = 0
 var nDiff = 0
 var nBoth = 0
@@ -19,58 +19,58 @@ var nLines1 = 0
 var nLines2 = 0
 var sizeDiff = 0
 
-type Output int
+type output int
 
 const (
-	F1 Output = iota
-	F2
-	All
-	Both
-	Diff
-	Stats
+	f1 output = iota
+	f2
+	all
+	both
+	diff
+	stats
 )
 
-var modes = []Output{F1, F2, All, Both, Diff, Stats}
+var modes = []output{f1, f2, all, both, diff, stats}
 var modesString string = strings.Join(strings.Fields(fmt.Sprint(modes)), "|")
 
 func modesHelp(prefix string) string {
 	return strings.Join([]string{
-		prefix + F1.String() + ":    Lines in file1 only",
-		prefix + F2.String() + ":    Lines in file2 only",
-		prefix + All.String() + ":   All lines (with diff info)",
-		prefix + Both.String() + ":  Lines occuring in both files",
-		prefix + Diff.String() + ":  Mismatching lines",
-		prefix + Stats.String() + ": Statistics",
+		prefix + f1.String() + ":    Lines in file1 only",
+		prefix + f2.String() + ":    Lines in file2 only",
+		prefix + all.String() + ":   All lines (with diff info)",
+		prefix + both.String() + ":  Lines occurring in both files",
+		prefix + diff.String() + ":  Mismatching lines",
+		prefix + stats.String() + ": Statistics",
 	}, "\n")
 }
 
-const _Output_name = "F1F2AllBothDiffStats"
+const _outputName = "f1f2allbothdiffstats"
 
-var _Output_index = [...]uint8{0, 2, 4, 7, 11, 15, 20}
+var _outputIndex = [...]uint8{0, 2, 4, 7, 11, 15, 20}
 
-func String2Output(s string) Output {
+func string2output(s string) output {
 	switch s {
-	case "F1":
-		return F1
-	case "F2":
-		return F2
-	case "All":
-		return All
-	case "Both":
-		return Both
-	case "Diff":
-		return Diff
-	case "Stats":
-		return Stats
+	case "f1":
+		return f1
+	case "f2":
+		return f2
+	case "all":
+		return all
+	case "both":
+		return both
+	case "diff":
+		return diff
+	case "stats":
+		return stats
 	}
 	log.Fatalf("Invalid output mode: %s", s)
-	return Stats
+	return stats
 }
-func (i Output) String() string {
-	if i < 0 || i >= Output(len(_Output_index)-1) {
-		return fmt.Sprintf("Output(%d)", i)
+func (i output) String() string {
+	if i < 0 || i >= output(len(_outputIndex)-1) {
+		return fmt.Sprintf("output(%d)", i)
 	}
-	return _Output_name[_Output_index[i]:_Output_index[i+1]]
+	return _outputName[_outputIndex[i]:_outputIndex[i+1]]
 }
 
 func max(n1, n2 int) int {
@@ -97,8 +97,8 @@ func readLine(lines []string, lineNo int) (string, error) {
 
 var ignoreCase *bool
 var keepOrdering *bool
-var defaultMode Output = Stats
-var mode Output
+var defaultMode = stats
+var mode output
 var trim *bool
 
 func equal(s1, s2 string) bool {
@@ -132,29 +132,29 @@ func unsorted(f1, f2 string) {
 			for _, input := range inputs {
 				found[input] = true
 			}
-			if mode == Both {
+			if mode == both {
 				fmt.Println(l0)
-			} else if mode == All {
-				fmt.Printf("F1 & F2\t%s\n", l0)
+			} else if mode == all {
+				fmt.Printf("f1 & f2\t%s\n", l0)
 			}
 		} else {
-			f2NotF1++
+			f2Notf1++
 			nDiff++
-			if mode == F2 {
+			if mode == f2 {
 				fmt.Println(l)
-			} else if mode == All || mode == Diff {
-				fmt.Printf("F2 not F1\t%s\n", l)
+			} else if mode == all || mode == diff {
+				fmt.Printf("f2 not f1\t%s\n", l)
 			}
 		}
 	}
 	for _, inputs := range lines {
 		for _, input := range inputs {
 			if _, ok := found[input]; !ok {
-				f1NotF2++
-				if mode == F1 {
+				f1Notf2++
+				if mode == f1 {
 					fmt.Println(input)
-				} else if mode == All || mode == Diff {
-					fmt.Printf("F1 not F2\t%s\n", input)
+				} else if mode == all || mode == diff {
+					fmt.Printf("f1 not f2\t%s\n", input)
 				}
 			}
 		}
@@ -172,35 +172,35 @@ func lineByLine(f1, f2 string) {
 		if eof1 != nil && eof2 == nil {
 			nDiff++
 			sizeDiff++
-			if mode == All || mode == Diff || mode == F1 {
-				fmt.Printf("F1 after F2\tL%d\t%s\n", i, l1)
+			if mode == all || mode == diff || mode == f1 {
+				fmt.Printf("f1 after f2\tL%d\t%s\n", i, l1)
 			}
 		} else if eof1 == nil && eof2 != nil {
 			nDiff++
 			sizeDiff++
-			if mode == All || mode == Diff || mode == F2 {
-				fmt.Printf("F2 after F1\tL%d\t%s\n", i, l2)
+			if mode == all || mode == diff || mode == f2 {
+				fmt.Printf("f2 after f1\tL%d\t%s\n", i, l2)
 			}
 		} else if equal(l1, l2) {
 			nBoth++
-			if mode == Both {
+			if mode == both {
 				fmt.Println(l1)
-			} else if mode == All {
-				fmt.Printf("F1 & F2\tL%d\t%s\n", i, l2)
+			} else if mode == all {
+				fmt.Printf("f1 & f2\tL%d\t%s\n", i, l2)
 			}
 		} else {
-			f1NotF2++
-			f2NotF1++
+			f1Notf2++
+			f2Notf1++
 			nDiff++
-			if mode == F1 {
+			if mode == f1 {
 				fmt.Println(l1)
 			}
-			if mode == F2 {
+			if mode == f2 {
 				fmt.Println(l2)
 			}
-			if mode == All || mode == Diff {
-				fmt.Printf("F1 not F2\tL%d\t%s\n", i, l1)
-				fmt.Printf("F2 not F1\tL%d\t%s\n", i, l2)
+			if mode == all || mode == diff {
+				fmt.Printf("f1 not f2\tL%d\t%s\n", i, l1)
+				fmt.Printf("f2 not f1\tL%d\t%s\n", i, l2)
 			}
 		}
 	}
@@ -210,9 +210,9 @@ func lineByLine(f1, f2 string) {
 func internalInitTests() {
 	for _, o := range modes {
 		s := o.String()
-		o2 := String2Output(s)
+		o2 := string2output(s)
 		if o2 != o {
-			log.Fatalf("Internal init error for Output type: %s <=> %s", o, o2)
+			log.Fatalf("Internal init error for output type: %s <=> %s", o, o2)
 		}
 	}
 }
@@ -255,7 +255,7 @@ func main() {
 	if *modeF == "" {
 		mode = defaultMode
 	} else {
-		mode = String2Output(*modeF)
+		mode = string2output(*modeF)
 	}
 
 	fmt.Fprintf(os.Stderr, "CaseSens:     %v\n", *ignoreCase)
@@ -269,12 +269,12 @@ func main() {
 		unsorted(file1, file2)
 	}
 
-	if mode == Stats {
+	if mode == stats {
 		fmt.Printf("F1 LINES READ:  %8d lines\n", nLines1)
-		fmt.Printf("F2 LINES READ:  %8d lines\n", nLines2)
+		fmt.Printf("F1 LINES READ:  %8d lines\n", nLines2)
 		fmt.Printf("FILE SIZE DIFF: %8d lines\n", sizeDiff)
-		fmt.Printf("F1 not F2       %8d lines\n", f1NotF2)
-		fmt.Printf("F2 not F1       %8d lines\n", f2NotF1)
+		fmt.Printf("F1 not F2       %8d lines\n", f1Notf2)
+		fmt.Printf("F2 not F1       %8d lines\n", f2Notf1)
 		fmt.Printf("F1  &  F2       %8d lines\n", nBoth)
 		fmt.Printf("TOTAL DIFF      %8d lines\n", nDiff)
 	}
