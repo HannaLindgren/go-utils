@@ -120,7 +120,8 @@ func main() {
 	fieldSep = flag.String("f", "\t", "field separator")
 
 	var printUsage = func() {
-		fmt.Fprintln(os.Stderr, "Utility script to filter lines in a file based on a certain column, using a list of which field values to print.\n")
+		fmt.Fprintln(os.Stderr, "Utility script to filter lines in a file based on a certain column, using a list of which field values to print.")
+		fmt.Fprintln(os.Stderr)
 		fmt.Fprintln(os.Stderr, "Usage:")
 		fmt.Fprintln(os.Stderr, cmdname+" <input file> <field indices to check> <file with list of field values to print>")
 		fmt.Fprintln(os.Stderr, "\nOptional flags:")

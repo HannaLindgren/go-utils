@@ -7,6 +7,7 @@ import (
 	"log"
 	"math"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -206,8 +207,6 @@ func lineByLine(f1, f2 string) {
 
 }
 
-const cmdname = "compare_files"
-
 func internalInitTests() {
 	for _, o := range modes {
 		s := o.String()
@@ -219,6 +218,8 @@ func internalInitTests() {
 }
 
 func main() {
+
+	cmdname := filepath.Base(os.Args[0])
 
 	internalInitTests()
 

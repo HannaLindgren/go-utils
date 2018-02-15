@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -22,7 +21,8 @@ func main() {
 		file := os.Args[i]
 		bts, err := ioutil.ReadFile(file)
 		if err != nil {
-			log.Fatalf("Couldn't read file %s : %v", file, err)
+			fmt.Fprintf(os.Stderr, "Couldn't read file %s : %v\n", file, err)
+			os.Exit(1)
 		}
 		lines := strings.Split(string(bts), "\n")
 		for _, line := range lines {
@@ -30,7 +30,7 @@ func main() {
 				continue
 			}
 			if strings.Contains(line, "\t") {
-				fmt.Println("Skipping %s", line)
+				fmt.Printf("Skipping %s\n", line)
 				continue
 			}
 			line = strings.TrimSpace(strings.Replace(line, ",", ".", -1))
@@ -38,7 +38,8 @@ func main() {
 			asNum, err := strconv.ParseFloat(line, 64)
 			n++
 			if err != nil {
-				log.Fatalf("Couldn't parse number from %s : %v", line, err)
+				fmt.Fprintf(os.Stderr, "Couldn't parse number from %s : %v\n", line, err)
+				os.Exit(1)
 			}
 			sum = sum + asNum
 		}
