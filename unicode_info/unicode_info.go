@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/HannaLindgren/go-scripts/util"
+	"golang.org/x/text/unicode/runenames"
 	"log"
 	"os"
 	"path/filepath"
@@ -27,8 +28,10 @@ func codeFor(r rune) string {
 func process(s string) string {
 	res := []string{}
 	for _, r := range []rune(s) {
+		name := runenames.Name(r)
 		uc := codeFor(r)
-		fmt.Printf("%s", uc)
+		block := blockFor(r)
+		res = append(res, fmt.Sprintf("%s\t%s\t%s\t%s", string(r), uc, name, block))
 	}
 	return strings.Join(res, "\n")
 }
@@ -36,7 +39,7 @@ func process(s string) string {
 func main() {
 	cmdname := filepath.Base(os.Args[0])
 	if len(os.Args) > 1 && strings.HasPrefix(os.Args[1], "-h") {
-		fmt.Fprintln(os.Stderr, "Utility script to convert strings into their unicode representation.")
+		fmt.Fprintln(os.Stderr, "Utility script to retrive information about input characters: unicode number, unicode name, and character block.")
 		fmt.Fprintln(os.Stderr)
 		fmt.Fprintf(os.Stderr, "Usage: %s <files>\n", cmdname)
 		fmt.Fprintf(os.Stderr, "       or\n")
