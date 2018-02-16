@@ -29,14 +29,14 @@ func GetFileReader(fName string) (io.Reader, *os.File, error) {
 
 type fn func(string) string
 
-// func ConvertStdinAndPrint(convert fn) error {
-// 	scanner := bufio.NewScanner(os.Stdin)
-// 	for scanner.Scan() {
-// 		s := scanner.Text()
-// 		fmt.Println(convert(s))
-// 	}
-// 	return nil
-// }
+func ConvertStdinAndPrint(convert fn) error {
+	scanner := bufio.NewScanner(os.Stdin)
+	for scanner.Scan() {
+		s := scanner.Text()
+		fmt.Println(convert(s))
+	}
+	return nil
+}
 
 // ConvertFilesAndPrint takes a conversion function and an array of files to convert. The conversion function should convert an input string to another (output) string. It's a utility for writing simple code for processing textfiles, typically converting each input line into another output line (upcase, line length, etc).
 func ConvertFilesAndPrint(convert fn, args []string) error {
