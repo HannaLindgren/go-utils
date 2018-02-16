@@ -5,7 +5,6 @@ import (
 	"compress/gzip"
 	"fmt"
 	"io"
-	"log"
 	"os"
 	"strings"
 )
@@ -30,28 +29,30 @@ func GetFileReader(fName string) (io.Reader, *os.File, error) {
 
 type fn func(string) string
 
-// ConvertLinesFromStinOrFiles takes a command name (for logging), an array of arguments (typically from os.Args), and a conversion function, that converts an input string to another (output string). Utility for writing simple code for processing textfiles, typically converting each line into another output line (upcase, line length, etc).
-func ConvertLinesFromStinOrFiles(cmdname string, args []string, convert fn) {
-	if len(args) < 2 {
-		fmt.Fprintf(os.Stderr, "Usage: %s <files or strings>\n", cmdname)
-		os.Exit(1)
-	}
-	for i := 1; i < len(args); i++ {
-		a := args[i]
-		if _, err := os.Stat(a); os.IsNotExist(err) {
-			fmt.Println(convert(a))
-		} else {
-			r, fh, err := GetFileReader(a)
-			defer fh.Close()
-			if err != nil {
-				log.Fatalf("%v", err)
-			}
-			scan := bufio.NewScanner(r)
-			for scan.Scan() {
-				s := scan.Text()
-				fmt.Println(convert(s))
-			}
+// func ConvertStdinAndPrint(convert fn) error {
+// 	scanner := bufio.NewScanner(os.Stdin)
+// 	for scanner.Scan() {
+// 		s := scanner.Text()
+// 		fmt.Println(convert(s))
+// 	}
+// 	return nil
+// }
+
+// ConvertFilesAndPrint takes a conversion function and an array of arguments (typically from os.Args). The conversion function should convert an input string to another output string. It's a utility for writing simple code for processing textfiles, typically converting each input line into another output line (upcase, line length, etc).
+func ConvertFilesAndPrint(convert fn, args []string) error {
+	for i := 0; i < len(args); i++ {
+		f := args[i]
+		r, fh, err := GetFileReader(f)
+		defer fh.Close()
+		if err != nil {
+			return err
+		}
+		defer fh.Close()
+		scan := bufio.NewScanner(r)
+		for scan.Scan() {
+			s := scan.Text()
+			fmt.Println(convert(s))
 		}
 	}
-
+	return nil
 }
