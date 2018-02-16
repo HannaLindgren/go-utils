@@ -2,31 +2,14 @@ package main
 
 import (
 	"bufio"
-	"compress/gzip"
 	"fmt"
-	"io"
+	"github.com/HannaLindgren/go-scripts/util"
 	"log"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
 )
-
-func getFileReader(fName string) io.Reader {
-	fs, err := os.Open(fName)
-	if err != nil {
-		log.Fatalf("Couldn't open file %s for reading : %v\n", fName, err)
-	}
-
-	if strings.HasSuffix(fName, ".gz") {
-		gz, err := gzip.NewReader(fs)
-		if err != nil {
-			log.Fatalf("Couldn't to open gz reader : %v", err)
-		}
-		return io.Reader(gz)
-	}
-	return io.Reader(fs)
-}
 
 var fieldSep = "\t"
 
@@ -47,7 +30,11 @@ func main() {
 
 	for i := 2; i < len(os.Args); i++ {
 		f := os.Args[i]
-		r := getFileReader(f)
+		r, fh, err := util.GetFileReader(f)
+		defer fh.Close()
+		if err != nil {
+			log.Fatalf("%v", err)
+		}
 		scan := bufio.NewScanner(r)
 		for scan.Scan() {
 			s := scan.Text()

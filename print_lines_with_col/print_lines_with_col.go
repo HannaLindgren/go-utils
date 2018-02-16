@@ -2,10 +2,9 @@ package main
 
 import (
 	"bufio"
-	"compress/gzip"
 	"flag"
 	"fmt"
-	"io"
+	"github.com/HannaLindgren/go-scripts/util"
 	"log"
 	"os"
 	"path/filepath"
@@ -13,30 +12,13 @@ import (
 	"strings"
 )
 
-func getFileReader(fName string) io.Reader {
-	fs, err := os.Open(fName)
-	if err != nil {
-		log.Fatalf("Couldn't open file %s for reading : %v\n", fName, err)
-	}
-
-	if strings.HasSuffix(fName, ".gz") {
-		gz, err := gzip.NewReader(fs)
-		if err != nil {
-			log.Fatalf("Couldn't to open gz reader : %v", err)
-		}
-		return io.Reader(gz)
-	}
-	return io.Reader(fs)
-}
-
-// TODO: Add flags for these settings
 var ignoreCase *bool // = false
 var fieldSep *string // = "\t"
 var trimSpace *bool  // = false
 
 var dbg = false
 
-// static + dynamic variables
+// static/dynamic variables
 var lines = make(map[int]map[string][]string)
 var indices = []int{}
 var nPrinted = 0
@@ -55,7 +37,11 @@ func loadFieldIndices(fields string) {
 }
 
 func loadContentFile(fname string) {
-	r := getFileReader(fname)
+	r, fh, err := util.GetFileReader(fname)
+	defer fh.Close()
+	if err != nil {
+		log.Fatalf("Couldn't read content file : %v", err)
+	}
 	scan := bufio.NewScanner(r)
 	for scan.Scan() {
 		l := scan.Text()
@@ -76,7 +62,11 @@ func loadContentFile(fname string) {
 }
 
 func readFieldFile(fname string) {
-	r := getFileReader(fname)
+	r, fh, err := util.GetFileReader(fname)
+	defer fh.Close()
+	if err != nil {
+		log.Fatalf("Couldn't read field file : %v", err)
+	}
 	scan := bufio.NewScanner(r)
 	for scan.Scan() {
 		field0 := scan.Text()
