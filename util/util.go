@@ -38,7 +38,7 @@ type fn func(string) string
 // 	return nil
 // }
 
-// ConvertFilesAndPrint takes a conversion function and an array of arguments (typically from os.Args). The conversion function should convert an input string to another output string. It's a utility for writing simple code for processing textfiles, typically converting each input line into another output line (upcase, line length, etc).
+// ConvertFilesAndPrint takes a conversion function and an array of files to convert. The conversion function should convert an input string to another (output) string. It's a utility for writing simple code for processing textfiles, typically converting each input line into another output line (upcase, line length, etc).
 func ConvertFilesAndPrint(convert fn, args []string) error {
 	for i := 0; i < len(args); i++ {
 		f := args[i]
