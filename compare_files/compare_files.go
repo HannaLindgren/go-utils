@@ -12,7 +12,7 @@ import (
 )
 
 var f1Notf2 = 0
-var f2NotF1 = 0
+var f2Notf1 = 0
 var nDiff = 0
 var nBoth = 0
 var nLines1 = 0
@@ -108,8 +108,8 @@ func equal(s1, s2 string) bool {
 	return s1 == s2
 }
 
-func unsorted(f1, f2 string) {
-	lines1, lines2 := readLines(f1), readLines(f2)
+func unsorted(file1, file2 string) {
+	lines1, lines2 := readLines(file1), readLines(file2)
 	nLines1, nLines2 = len(lines1), len(lines2)
 	sizeDiff = int(math.Abs(float64(nLines2 - nLines1)))
 	lines := make(map[string][]string)
@@ -161,8 +161,8 @@ func unsorted(f1, f2 string) {
 	}
 }
 
-func lineByLine(f1, f2 string) {
-	lines1, lines2 := readLines(f1), readLines(f2)
+func lineByLine(file1, file2 string) {
+	lines1, lines2 := readLines(file1), readLines(file2)
 	nLines1, nLines2 = len(lines1), len(lines2)
 	max := max(nLines1, nLines2)
 
