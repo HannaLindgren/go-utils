@@ -38,8 +38,8 @@ func ConvertStdinAndPrint(convert fn) error {
 	return nil
 }
 
-// ConvertFilesAndPrint takes a conversion function and an array of files to convert. The conversion function should convert an input string to another (output) string. It's a utility for writing simple code for processing textfiles, typically converting each input line into another output line (upcase, line length, etc).
-func ConvertFilesAndPrint(convert fn, args []string) error {
+// ConvertAndPrintFromFileArgs takes a conversion function and an array of files to convert. The conversion function should convert an input string to another (output) string. It's a utility for writing simple code for processing textfiles, typically converting each input line into another output line (upcase, line length, etc).
+func ConvertAndPrintFromFileArgs(convert fn, args []string) error {
 	for i := 0; i < len(args); i++ {
 		f := args[i]
 		r, fh, err := GetFileReader(f)
@@ -47,10 +47,36 @@ func ConvertFilesAndPrint(convert fn, args []string) error {
 		if err != nil {
 			return err
 		}
-		defer fh.Close()
 		scan := bufio.NewScanner(r)
 		for scan.Scan() {
 			s := scan.Text()
+			fmt.Println(convert(s))
+		}
+	}
+	return nil
+}
+
+// ConvertAndPrintFromFileArgsOrStdin takes a conversion function, and as conversion input it uses (1) files specified in os.Args; or (2) stdin. The conversion function should convert an input string to another (output) string. It's a utility for writing simple code for processing textfiles, typically converting each input line into another output line (upcase, line length, etc).
+func ConvertAndPrintFromFileArgsOrStdin(convert fn) error {
+	if len(os.Args) > 1 {
+		for i := 1; i < len(os.Args); i++ {
+			f := os.Args[i]
+			r, fh, err := GetFileReader(f)
+			defer fh.Close()
+			if err != nil {
+				return err
+			}
+			scanner := bufio.NewScanner(r)
+			for scanner.Scan() {
+				s := scanner.Text()
+				fmt.Println(convert(s))
+			}
+
+		}
+	} else {
+		scanner := bufio.NewScanner(os.Stdin)
+		for scanner.Scan() {
+			s := scanner.Text()
 			fmt.Println(convert(s))
 		}
 	}
