@@ -33,6 +33,10 @@ func main() {
 				fmt.Printf("Skipping %s\n", line)
 				continue
 			}
+			if strings.Contains(line, "#") {
+				fmt.Printf("Skipping %s\n", line)
+				continue
+			}
 			line = strings.TrimSpace(strings.Replace(line, ",", ".", -1))
 			line = strings.Replace(line, " ", "", -1)
 			asNum, err := strconv.ParseFloat(line, 64)

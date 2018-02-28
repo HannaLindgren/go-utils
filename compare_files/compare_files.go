@@ -258,7 +258,7 @@ func main() {
 		mode = string2output(*modeF)
 	}
 
-	fmt.Fprintf(os.Stderr, "CaseSens:     %v\n", *ignoreCase)
+	fmt.Fprintf(os.Stderr, "IgnoreCase:   %v\n", *ignoreCase)
 	fmt.Fprintf(os.Stderr, "KeepOrdering: %v\n", *keepOrdering)
 	fmt.Fprintf(os.Stderr, "TrimSpace:    %v\n", *trim)
 	fmt.Fprintf(os.Stderr, "Mode:         %s\n", mode.String())
