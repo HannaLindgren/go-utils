@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/HannaLindgren/go-scripts/util"
+	"github.com/HannaLindgren/go-utils/scripts/util"
 	"log"
 	"os"
 	"path/filepath"
@@ -10,7 +10,7 @@ import (
 )
 
 func process(s string) string {
-	return strings.ToLower(s)
+	return strings.ToUpper(s)
 }
 
 func main() {

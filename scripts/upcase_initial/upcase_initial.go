@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/HannaLindgren/go-scripts/util"
+	"github.com/HannaLindgren/go-utils/scripts/util"
 	"log"
 	"os"
 	"path/filepath"
@@ -10,7 +10,16 @@ import (
 )
 
 func process(s string) string {
-	return strings.ToUpper(s)
+	runes := []rune(s)
+	head := ""
+	if len(runes) > 0 {
+		head = strings.ToUpper(string(runes[0]))
+	}
+	tail := ""
+	if len(runes) > 0 {
+		tail = strings.ToLower(string(runes[1:]))
+	}
+	return head + tail
 }
 
 func main() {

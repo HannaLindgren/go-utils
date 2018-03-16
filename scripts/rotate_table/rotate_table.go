@@ -3,7 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"github.com/HannaLindgren/go-scripts/util"
+	"github.com/HannaLindgren/go-utils/scripts/util"
 	"log"
 	"os"
 	"path/filepath"
