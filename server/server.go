@@ -97,7 +97,10 @@ var cmdVars []string
 func main() {
 
 	if len(os.Args) != 3 {
-		fmt.Fprintf(os.Stderr, "server 'PORT' 'COMMAND'\n")
+		fmt.Fprintf(os.Stderr, "Usage:\ngo run server.go PORT 'COMMAND'\n")
+		fmt.Fprintf(os.Stderr, "- variables are indicated with {NAME}\n\n")
+		fmt.Fprintf(os.Stderr, "Example usage:\ngo run server.go 9900 'echo Someone said <{string}>'\n")
+		fmt.Fprintf(os.Stderr, " - the server is then called from URL http://localhost:9900?string=Hello%20world\n")
 		os.Exit(0)
 	}
 
@@ -112,7 +115,7 @@ func main() {
 	cmdVars = parseCmdVars(cmd) // []string{}
 
 	url := "/"
-	// for PARAMS
+	// /* for PARAMS usage */
 	// for _, v := range cmdVars {
 	// 	url = fmt.Sprintf("%s{%s}/", url, v)
 	// }
@@ -121,7 +124,12 @@ func main() {
 	r.HandleFunc(url, handlerFunc)
 
 	log.Printf("starting g2p server at port: %s\n", port)
-	log.Printf("responding to url: %s", url)
+
+	prettyURL := "http://localhost" + port
+	log.Printf("responding to url: %s", prettyURL)
+	if len(cmdVars) > 0 {
+		log.Printf("example usage: curl %s?%s=value_of_%s", prettyURL, cmdVars[0], cmdVars[0])
+	}
 	err := http.ListenAndServe(port, r)
 	if err != nil {
 		log.Fatalf("no fun: %v\n", err)
