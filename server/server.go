@@ -100,7 +100,7 @@ func main() {
 		fmt.Fprintf(os.Stderr, "Usage:\ngo run server.go PORT 'COMMAND'\n")
 		fmt.Fprintf(os.Stderr, "- variables are indicated with {NAME}\n\n")
 		fmt.Fprintf(os.Stderr, "Example usage:\ngo run server.go 9900 'echo Someone said <{string}>'\n")
-		fmt.Fprintf(os.Stderr, " - the server is then called from URL http://localhost:9900?string=Hello%20world\n")
+		fmt.Fprintf(os.Stderr, " - the server is then called from URL http://localhost:9900?string=Hello%%20world\n")
 		os.Exit(0)
 	}
 
