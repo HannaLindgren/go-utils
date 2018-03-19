@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/HannaLindgren/go-utils/scripts/util"
+	"golang.org/x/text/unicode/norm"
 	"golang.org/x/text/unicode/runenames"
 	"log"
 	"os"
@@ -25,9 +26,16 @@ func codeFor(r rune) string {
 	return fmt.Sprintf("\\u%s", uc[2:])
 }
 
+func normalize(s string) string {
+	if nfc {
+		return string(norm.NFC.Bytes([]byte(s)))
+	}
+	return s
+}
+
 func process(s string) string {
 	res := []string{}
-	for _, r := range []rune(s) {
+	for _, r := range []rune(normalize(s)) {
 		name := runenames.Name(r)
 		uc := codeFor(r)
 		block := blockFor(r)
@@ -35,6 +43,8 @@ func process(s string) string {
 	}
 	return strings.Join(res, "\n")
 }
+
+var nfc = false
 
 func main() {
 	cmdname := filepath.Base(os.Args[0])
