@@ -96,8 +96,6 @@ func main() {
 	for i := 0; i < max; i++ {
 		l1, eof1 := readLine(lines1, i)
 		l2, eof2 := readLine(lines2, i)
-		// fmt.Println("L1\t" + l1)
-		// fmt.Println("L2\t" + l2)
 		if eof1 != nil && eof2 == nil {
 			sizeDiff++
 			if !*quiet {
