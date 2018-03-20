@@ -173,13 +173,13 @@ func lineByLine(file1, file2 string) {
 			nDiff++
 			sizeDiff++
 			if mode == all || mode == diff || mode == f1 {
-				fmt.Printf("f1 after f2\tL%d\t%s\n", i, l1)
+				fmt.Printf("f2 after f1\tL%d\t%s\n", i, l2)
 			}
 		} else if eof1 == nil && eof2 != nil {
 			nDiff++
 			sizeDiff++
 			if mode == all || mode == diff || mode == f2 {
-				fmt.Printf("f2 after f1\tL%d\t%s\n", i, l2)
+				fmt.Printf("f1 after f2\tL%d\t%s\n", i, l1)
 			}
 		} else if equal(l1, l2) {
 			nBoth++

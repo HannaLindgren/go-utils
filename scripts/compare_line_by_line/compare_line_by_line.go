@@ -76,6 +76,10 @@ func main() {
 	}
 
 	file1, file2 := flag.Arg(0), flag.Arg(1)
+	if *verb {
+		fmt.Fprintf(os.Stderr, "File1: %s\n", file1)
+		fmt.Fprintf(os.Stderr, "File2: %s\n", file2)
+	}
 	if file1 == file2 {
 		fmt.Printf("[%s] Comparing a file to itself doesn't make sense: %s\n", cmdname, file1)
 		return
@@ -92,15 +96,17 @@ func main() {
 	for i := 0; i < max; i++ {
 		l1, eof1 := readLine(lines1, i)
 		l2, eof2 := readLine(lines2, i)
+		// fmt.Println("L1\t" + l1)
+		// fmt.Println("L2\t" + l2)
 		if eof1 != nil && eof2 == nil {
 			sizeDiff++
 			if !*quiet {
-				fmt.Printf("F1 after F2\tL%d\t%s\n", i, l1)
+				fmt.Printf("F2 after F1\tL%d\t%s\n", i, l2)
 			}
 		} else if eof1 == nil && eof2 != nil {
 			sizeDiff++
 			if !*quiet {
-				fmt.Printf("F2 after F1\tL%d\t%s\n", i, l2)
+				fmt.Printf("F1 after F2\tL%d\t%s\n", i, l1)
 			}
 		} else if equal(l1, l2) {
 			if *verb {
