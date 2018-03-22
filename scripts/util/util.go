@@ -40,7 +40,7 @@ type fn func(string) string
 
 // ConvertAndPrintFromFilesOrStdin
 func ConvertAndPrintFromFilesOrStdin(convert fn, files []string) error {
-	if len(files) > 1 {
+	if len(files) > 0 {
 		for _, f := range files {
 			r, fh, err := GetFileReader(f)
 			defer fh.Close()
