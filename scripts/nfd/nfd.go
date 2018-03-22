@@ -22,8 +22,6 @@ func main() {
 		fmt.Fprintf(os.Stderr, "Usage: %s <files>\n", cmdname)
 		fmt.Fprintf(os.Stderr, "       or\n")
 		fmt.Fprintf(os.Stderr, "       cat <file> | %s\n", cmdname)
-		fmt.Fprintf(os.Stderr, "       or\n")
-		fmt.Fprintf(os.Stderr, "       echo <string> | %s\n", cmdname)
 		os.Exit(1)
 	}
 	err := util.ConvertAndPrintFromFileArgsOrStdin(process)
