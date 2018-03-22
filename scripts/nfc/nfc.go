@@ -17,7 +17,7 @@ func process(s string) string {
 func main() {
 	cmdname := filepath.Base(os.Args[0])
 	if len(os.Args) > 1 && strings.HasPrefix(os.Args[1], "-h") {
-		fmt.Fprintln(os.Stderr, "Utility script for canonical composition of text data.")
+		fmt.Fprintln(os.Stderr, "Utility script for canonical composition of text data (non-destructive conversion).")
 		fmt.Fprintln(os.Stderr)
 		fmt.Fprintf(os.Stderr, "Usage: %s <files>\n", cmdname)
 		fmt.Fprintf(os.Stderr, "       or\n")
