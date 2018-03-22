@@ -8,9 +8,28 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"regexp"
+	"strconv"
 	"strings"
 	"unicode"
 )
+
+var ucNumberRe = regexp.MustCompile(`^(\\u|U[+])[a-f0-9]{4}$`)
+
+func isUcNumber(s string) bool {
+	return ucNumberRe.MatchString(s)
+}
+
+func ucNumber2String(s string) string {
+	s = strings.Replace(s, `\u`, "", -1)
+	s = strings.Replace(s, `U+`, "", -1)
+	i, err := strconv.ParseInt(s, 16, 32)
+	if err != nil {
+		log.Fatal(err)
+	}
+	r := rune(i)
+	return string(r)
+}
 
 func blockFor(r rune) string {
 	for s, t := range unicode.Scripts {
@@ -35,7 +54,11 @@ func normalize(s string) string {
 
 func process(s string) string {
 	res := []string{}
-	for _, r := range []rune(normalize(s)) {
+	sx := s
+	if isUcNumber(s) {
+		sx = ucNumber2String(s)
+	}
+	for _, r := range []rune(normalize(sx)) {
 		name := runenames.Name(r)
 		uc := codeFor(r)
 		block := blockFor(r)
