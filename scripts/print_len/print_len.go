@@ -1,35 +1,34 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
 	"github.com/HannaLindgren/go-utils/scripts/util"
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 )
+
+func process(s string) string {
+	runes := []rune(s)
+	len := len(runes)
+	if len > 0 {
+		return fmt.Sprintf("%d\t%s", len, s)
+	}
+	return ""
+}
 
 func main() {
 	cmdname := filepath.Base(os.Args[0])
-	if len(os.Args) < 2 {
-		fmt.Fprintf(os.Stderr, "Prints the length of each input line\nUsage: %s <files>\n", cmdname)
+	if len(os.Args) > 1 && strings.HasPrefix(os.Args[1], "-h") {
+		fmt.Fprintf(os.Stderr, "Prints the length of each input line\n")
+		fmt.Fprintf(os.Stderr, "Usage: %s <files>\n", cmdname)
+		fmt.Fprintf(os.Stderr, "       or\n")
+		fmt.Fprintf(os.Stderr, "       cat <file> | %s\n", cmdname)
 		os.Exit(1)
 	}
-	for i := 1; i < len(os.Args); i++ {
-		f := os.Args[i]
-		r, fh, err := util.GetFileReader(f)
-		defer fh.Close()
-		if err != nil {
-			log.Fatalf("%v", err)
-		}
-		scan := bufio.NewScanner(r)
-		for scan.Scan() {
-			s := scan.Text()
-			runes := []rune(s)
-			len := len(runes)
-			if len > 0 {
-				fmt.Printf("%d\t%s\n", len, s)
-			}
-		}
+	err := util.ConvertAndPrintFromFileArgsOrStdin(process)
+	if err != nil {
+		log.Fatalf("%v", err)
 	}
 }
