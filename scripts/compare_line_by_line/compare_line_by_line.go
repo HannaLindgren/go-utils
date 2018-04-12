@@ -21,7 +21,11 @@ func readLines(file string) []string {
 	if err != nil {
 		log.Fatalf("Couldn't read file %s : %v", file, err)
 	}
-	return strings.Split(string(bts), "\n")
+	lines := strings.Split(string(bts), "\n")
+	if len(lines) > 0 && lines[len(lines)-1] == "" { // sometimes I get an empty line last....
+		lines = lines[:len(lines)-1]
+	}
+	return lines
 }
 
 func readLine(lines []string, lineNo int) (string, error) {
