@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/HannaLindgren/go-utils/scripts/util"
+	"golang.org/x/text/transform"
 	"golang.org/x/text/unicode/norm"
 	"golang.org/x/text/unicode/runenames"
 	"log"
@@ -45,11 +46,21 @@ func codeFor(r rune) string {
 	return fmt.Sprintf("\\u%s", uc[2:])
 }
 
+func nfcNorm(s string) string {
+	norm, _, _ := transform.String(norm.NFC, s)
+	return norm
+}
+
+func nfdNorm(s string) string {
+	norm, _, _ := transform.String(norm.NFD, s)
+	return norm
+}
+
 func normalize(s string) string {
 	if *nfc {
-		return string(norm.NFC.Bytes([]byte(s)))
+		return nfcNorm(s)
 	} else if *nfd {
-		return string(norm.NFD.Bytes([]byte(s)))
+		return nfdNorm(s)
 	}
 	return s
 }
@@ -72,7 +83,7 @@ func process(s string) string {
 		name := runenames.Name(r)
 		uc := codeFor(r)
 		block := blockFor(r)
-		res = append(res, fmt.Sprintf("%s\t%s\t%s\t%s", string(r), uc, name, block))
+		res = append(res, fmt.Sprintf("%s\t%s\t%s\t%s\t%s", s, string(r), uc, name, block))
 	}
 	return strings.Join(res, "\n")
 }
