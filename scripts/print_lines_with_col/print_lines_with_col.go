@@ -146,7 +146,7 @@ func main() {
 	fmt.Fprintf(os.Stderr, "MISSING %d\n", len(missing))
 
 	if len(missing) > 0 {
-		missingFile := filepath.Join(os.TempDir(), fmt.Sprintf("%s.txt", cmdname))
+		missingFile := filepath.Join(os.TempDir(), fmt.Sprintf("%s_missing.txt", cmdname))
 		f, err := os.Create(missingFile)
 		defer f.Close()
 		if err != nil {
