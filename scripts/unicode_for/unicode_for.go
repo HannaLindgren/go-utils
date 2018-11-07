@@ -2,12 +2,13 @@ package main
 
 import (
 	"fmt"
-	"github.com/HannaLindgren/go-utils/scripts/util"
 	"log"
 	"os"
 	"path/filepath"
 	"strings"
 	"unicode"
+
+	"github.com/HannaLindgren/go-utils/scripts/util"
 )
 
 func blockFor(r rune) string {
