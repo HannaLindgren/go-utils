@@ -83,7 +83,7 @@ func main() {
 	args := os.Args[1:]
 	freqRight := false
 	percentage := false
-	if len(args) > 0 {
+	for len(args) > 0 {
 		if strings.HasPrefix(args[0], "-r") {
 			freqRight = true
 			args = args[1:]
