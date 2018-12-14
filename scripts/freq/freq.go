@@ -108,9 +108,9 @@ func main() {
 				fmt.Printf("%v\t%v\n", s, freq[s])
 			}
 		} else if percentage {
-			fmt.Printf("%v\t%s\t%v\n", freq[s], prcntFmt(freq[s], total), s)
+			fmt.Printf("%v\t%s\t%v\n", s, freq[s], prcntFmt(freq[s], total))
 		} else {
-			fmt.Printf("%v\t%v\n", s, freq[s])
+			fmt.Printf("%v\t%v\n", freq[s], s)
 		}
 	}
 }
