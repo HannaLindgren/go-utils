@@ -8,6 +8,7 @@ import (
 	"math"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 )
 
@@ -85,7 +86,9 @@ func readLines(file string) []string {
 	if err != nil {
 		log.Fatalf("Couldn't read file %s : %v", file, err)
 	}
-	return strings.Split(string(bts), "\n")
+	var finalNewline = regexp.MustCompile("\n$")
+	var s = finalNewline.ReplaceAllString(string(bts), "")
+	return strings.Split(s, "\n")
 }
 
 func readLine(lines []string, lineNo int) (string, error) {
