@@ -38,11 +38,11 @@ func main() {
 
 				bts1, err := ioutil.ReadFile(f1)
 				if err != nil {
-					log.Fatalf("%v", err)
+					log.Fatalf("Couldn't load file %s : %v", f1, err)
 				}
 				bts2, err := ioutil.ReadFile(f2)
 				if err != nil {
-					log.Fatalf("%v", err)
+					log.Fatalf("Couldn't load file %s : %v", f2, err)
 				}
 				if reflect.DeepEqual(bts1, bts2) {
 					fmt.Printf("Files %s and %s are identical\n", f1, f2)
