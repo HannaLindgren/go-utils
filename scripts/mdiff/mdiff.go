@@ -14,6 +14,7 @@ import (
 func main() {
 	cmdname := filepath.Base(os.Args[0])
 	if len(os.Args) < 3 {
+		fmt.Fprintf(os.Stderr, "Binary compare multiple files\n")
 		fmt.Fprintf(os.Stderr, "Usage: %s <files>\n", cmdname)
 		os.Exit(1)
 	}
