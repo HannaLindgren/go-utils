@@ -273,6 +273,8 @@ func main() {
 	}
 
 	if mode == stats {
+		fmt.Printf("F1: %s\n", file1)
+		fmt.Printf("F2: %s\n", file2)
 		fmt.Printf("F1 LINES READ:  %8d lines\n", nLines1)
 		fmt.Printf("F2 LINES READ:  %8d lines\n", nLines2)
 		fmt.Printf("FILE SIZE DIFF: %8d lines\n", sizeDiff)
