@@ -261,6 +261,9 @@ func main() {
 		mode = string2output(*modeF)
 	}
 
+	fmt.Fprintf(os.Stderr, "File1: %s\n", file1)
+	fmt.Fprintf(os.Stderr, "File2: %s\n", file2)
+
 	fmt.Fprintf(os.Stderr, "IgnoreCase:   %v\n", *ignoreCase)
 	fmt.Fprintf(os.Stderr, "KeepOrdering: %v\n", *keepOrdering)
 	fmt.Fprintf(os.Stderr, "TrimSpace:    %v\n", *trim)
@@ -273,8 +276,6 @@ func main() {
 	}
 
 	if mode == stats {
-		fmt.Printf("F1: %s\n", file1)
-		fmt.Printf("F2: %s\n", file2)
 		fmt.Printf("F1 LINES READ:  %8d lines\n", nLines1)
 		fmt.Printf("F2 LINES READ:  %8d lines\n", nLines2)
 		fmt.Printf("FILE SIZE DIFF: %8d lines\n", sizeDiff)
