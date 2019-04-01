@@ -5,6 +5,7 @@ import (
 	"compress/gzip"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"os"
 	"strings"
 )
@@ -37,6 +38,25 @@ type fn func(string) string
 // 	}
 // 	return nil
 // }
+
+// ReadFileToString
+func ReadFileToString(fName string) (string, error) {
+	b, err := ioutil.ReadFile(fName)
+	if err != nil {
+		return "", err
+	}
+	return string(b), nil
+}
+
+// ReadStdinToString
+func ReadStdinToString() (string, error) {
+	stdin := bufio.NewReader(os.Stdin)
+	b, err := ioutil.ReadAll(stdin)
+	if err != nil {
+		return "", err
+	}
+	return string(b), nil
+}
 
 // ConvertAndPrintFromFilesOrStdin
 func ConvertAndPrintFromFilesOrStdin(convert fn, files []string) error {

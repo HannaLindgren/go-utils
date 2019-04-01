@@ -18,6 +18,18 @@ import (
 
 var ucNumberRe = regexp.MustCompile(`^(?:\\u|[uU][+])([a-fA-F0-9]{4})$`)
 
+const newline rune = '\n'
+
+var hardwiredNames = map[rune]string{
+	newline: "NEWLINE",
+	'	': "TAB",
+}
+
+func inhibitSpecialChar(r rune) bool {
+	_, ok := hardwiredNames[r]
+	return ok
+}
+
 func isUcNumber(s string) bool {
 	return ucNumberRe.MatchString(s)
 }
@@ -46,6 +58,13 @@ func codeFor(r rune) string {
 	return fmt.Sprintf("\\u%s", uc[2:])
 }
 
+func nameFor(r rune) string {
+	if name, ok := hardwiredNames[r]; ok {
+		return name
+	}
+	return runenames.Name(r)
+}
+
 func nfcNorm(s string) string {
 	norm, _, _ := transform.String(norm.NFC, s)
 	return norm
@@ -65,8 +84,7 @@ func normalize(s string) string {
 	return s
 }
 
-func process(s string) string {
-	res := []string{}
+func process(s string) {
 	sx := s
 	if *convertFromUnicodeNumbers {
 		tmp := []string{}
@@ -80,12 +98,15 @@ func process(s string) string {
 		sx = strings.Join(tmp, " ")
 	}
 	for _, r := range []rune(normalize(sx)) {
-		name := runenames.Name(r)
+		name := nameFor(r)
 		uc := codeFor(r)
 		block := blockFor(r)
-		res = append(res, fmt.Sprintf("%s\t%s\t%s\t%s\t%s", s, string(r), uc, name, block))
+		thisS := string(r)
+		if inhibitSpecialChar(r) {
+			thisS = ""
+		}
+		fmt.Printf("%s\t%s\t%s\t%s\n", thisS, uc, name, block)
 	}
-	return strings.Join(res, "\n")
 }
 
 var nfc *bool
@@ -124,8 +145,19 @@ func main() {
 		os.Exit(0)
 	}
 
-	err := util.ConvertAndPrintFromFilesOrStdin(process, flag.Args())
-	if err != nil {
-		log.Fatalf("%v", err)
+	if len(flag.Args()) > 0 {
+		for _, fName := range flag.Args() {
+			text, err := util.ReadFileToString(fName)
+			if err != nil {
+				log.Fatalf("%v", err)
+			}
+			process(text)
+		}
+	} else {
+		text, err := util.ReadStdinToString()
+		if err != nil {
+			log.Fatalf("%v", err)
+		}
+		process(text)
 	}
 }

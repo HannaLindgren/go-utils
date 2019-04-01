@@ -25,13 +25,20 @@ func codeFor(r rune) string {
 	return fmt.Sprintf("\\u%s", uc[2:])
 }
 
-func process(s string) string {
-	res := []string{}
+func processRune(r rune) string {
+	uc := codeFor(r)
+	return fmt.Sprintf("%s", uc)
+}
+
+const newline rune = '\n'
+
+func process(s string) {
 	for _, r := range []rune(s) {
-		uc := codeFor(r)
-		fmt.Printf("%s", uc)
+		fmt.Print(processRune(r))
+		if r == newline {
+			fmt.Println()
+		}
 	}
-	return strings.Join(res, "\n")
 }
 
 func main() {
@@ -44,8 +51,19 @@ func main() {
 		fmt.Fprintf(os.Stderr, "       cat <file> | %s\n", cmdname)
 		os.Exit(1)
 	}
-	err := util.ConvertAndPrintFromFileArgsOrStdin(process)
-	if err != nil {
-		log.Fatalf("%v", err)
+	if len(os.Args[1:]) > 0 {
+		for _, fName := range os.Args[1:] {
+			text, err := util.ReadFileToString(fName)
+			if err != nil {
+				log.Fatalf("%v", err)
+			}
+			process(text)
+		}
+	} else {
+		text, err := util.ReadStdinToString()
+		if err != nil {
+			log.Fatalf("%v", err)
+		}
+		process(text)
 	}
 }
