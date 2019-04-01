@@ -16,8 +16,6 @@ var ignoreCase *bool // = false
 var fieldSep *string // = "\t"
 var trimSpace *bool  // = false
 
-var dbg = false
-
 // static/dynamic variables
 var lines = make(map[int]map[string][]string)
 var indices = []int{}
@@ -93,16 +91,6 @@ func readFieldFile(fname string) {
 	}
 }
 
-func debug(s string) {
-	if dbg {
-		fmt.Println(s)
-	}
-}
-
-func debugf(template string, values ...interface{}) {
-	debug(fmt.Sprintf(template, values))
-}
-
 func main() {
 	cmdname := filepath.Base(os.Args[0])
 	ignoreCase = flag.Bool("i", false, "ignore case (default false)")
@@ -135,10 +123,8 @@ func main() {
 	fieldsToPrint := flag.Arg(2)
 
 	loadFieldIndices(fields)
-	debugf("indices: %v\n", indices)
 
 	loadContentFile(inputFile)
-	debugf("%v\n", lines)
 
 	readFieldFile(fieldsToPrint)
 
