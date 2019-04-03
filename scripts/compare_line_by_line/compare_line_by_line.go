@@ -122,6 +122,9 @@ func main() {
 		}
 	}
 
+	fmt.Fprintf(os.Stderr, "F1: %s\n", file1)
+	fmt.Fprintf(os.Stderr, "F2: %s\n", file2)
+
 	fmt.Fprintf(os.Stderr, "F1 LINES READ:  %8d lines\n", n1)
 	fmt.Fprintf(os.Stderr, "F2 LINES READ:  %8d lines\n", n2)
 	fmt.Fprintf(os.Stderr, "FILE SIZE DIFF: %8d lines\n", sizeDiff)
