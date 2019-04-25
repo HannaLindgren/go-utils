@@ -1,28 +1,21 @@
 package universal_generator
 
 import (
-	"fmt"
-	"os"
 	"reflect"
-	"strings"
 	"testing"
 )
 
 var fsExpGot = "expected: %#v ; got: %#v"
 
-func f0() {
-	fmt.Fprintf(os.Stderr, "")
-}
-
 func Test1(t *testing.T) {
-	template := template{
-		input{"idag", "imorgon", "på fredag", "nästa vecka"},
-		input{"ska", "kan", "kommer"},
-		input{"det"},
-		input{"inte", "kanske", ""},
-		input{"regna", "snöa", "brinna", "hagla", "dugga", "blåsa", "storma", "blåsa upp till orkan", "vara uppehåll", "vara fint väder", "vara hög brandrisk i alla län"},
+	template := Template{
+		Input{"idag", "imorgon", "på fredag", "nästa vecka"},
+		Input{"ska", "kan", "kommer"},
+		Input{"det"},
+		Input{"inte", "kanske", ""},
+		Input{"regna", "snöa", "brinna", "hagla", "dugga", "blåsa", "storma", "blåsa upp till orkan", "vara uppehåll", "vara fint väder", "vara hög brandrisk i alla län"},
 	}
-	result := len(expand(template))
+	result := len(template.Expand())
 	expect := 1
 	for _, i := range template {
 		expect = expect * len(i)
@@ -37,39 +30,51 @@ func Test1(t *testing.T) {
 }
 
 func Test2(t *testing.T) {
-	template := template{
-		input{"idag", "imorgon"},
-		input{"ska", "kan", "kommer"},
-		input{"det"},
-		input{"inte", ""},
-		input{"regna", "snöa"},
+	template := Template{
+		Input{"idag", "imorgon", "nästa vecka"},
+		Input{"ska", "kan", "kommer"},
+		Input{"det"},
+		Input{"inte", ""},
+		Input{"regna", "snöa"},
 	}
-	result := expand(template)
-	expect := []output{
-		strings.Split("idag ska det inte regna", " "),
-		strings.Split("idag ska det inte snöa", " "),
-		strings.Split("idag ska det  regna", " "),
-		strings.Split("idag ska det  snöa", " "),
-		strings.Split("idag kan det inte regna", " "),
-		strings.Split("idag kan det inte snöa", " "),
-		strings.Split("idag kan det  regna", " "),
-		strings.Split("idag kan det  snöa", " "),
-		strings.Split("idag kommer det inte regna", " "),
-		strings.Split("idag kommer det inte snöa", " "),
-		strings.Split("idag kommer det  regna", " "),
-		strings.Split("idag kommer det  snöa", " "),
-		strings.Split("imorgon ska det inte regna", " "),
-		strings.Split("imorgon ska det inte snöa", " "),
-		strings.Split("imorgon ska det  regna", " "),
-		strings.Split("imorgon ska det  snöa", " "),
-		strings.Split("imorgon kan det inte regna", " "),
-		strings.Split("imorgon kan det inte snöa", " "),
-		strings.Split("imorgon kan det  regna", " "),
-		strings.Split("imorgon kan det  snöa", " "),
-		strings.Split("imorgon kommer det inte regna", " "),
-		strings.Split("imorgon kommer det inte snöa", " "),
-		strings.Split("imorgon kommer det  regna", " "),
-		strings.Split("imorgon kommer det  snöa", " "),
+	result := template.Expand()
+	expect := []Output{
+		[]string{"idag", "ska", "det", "inte", "regna"},
+		[]string{"idag", "ska", "det", "inte", "snöa"},
+		[]string{"idag", "ska", "det", "", "regna"},
+		[]string{"idag", "ska", "det", "", "snöa"},
+		[]string{"idag", "kan", "det", "inte", "regna"},
+		[]string{"idag", "kan", "det", "inte", "snöa"},
+		[]string{"idag", "kan", "det", "", "regna"},
+		[]string{"idag", "kan", "det", "", "snöa"},
+		[]string{"idag", "kommer", "det", "inte", "regna"},
+		[]string{"idag", "kommer", "det", "inte", "snöa"},
+		[]string{"idag", "kommer", "det", "", "regna"},
+		[]string{"idag", "kommer", "det", "", "snöa"},
+		[]string{"imorgon", "ska", "det", "inte", "regna"},
+		[]string{"imorgon", "ska", "det", "inte", "snöa"},
+		[]string{"imorgon", "ska", "det", "", "regna"},
+		[]string{"imorgon", "ska", "det", "", "snöa"},
+		[]string{"imorgon", "kan", "det", "inte", "regna"},
+		[]string{"imorgon", "kan", "det", "inte", "snöa"},
+		[]string{"imorgon", "kan", "det", "", "regna"},
+		[]string{"imorgon", "kan", "det", "", "snöa"},
+		[]string{"imorgon", "kommer", "det", "inte", "regna"},
+		[]string{"imorgon", "kommer", "det", "inte", "snöa"},
+		[]string{"imorgon", "kommer", "det", "", "regna"},
+		[]string{"imorgon", "kommer", "det", "", "snöa"},
+		[]string{"nästa vecka", "ska", "det", "inte", "regna"},
+		[]string{"nästa vecka", "ska", "det", "inte", "snöa"},
+		[]string{"nästa vecka", "ska", "det", "", "regna"},
+		[]string{"nästa vecka", "ska", "det", "", "snöa"},
+		[]string{"nästa vecka", "kan", "det", "inte", "regna"},
+		[]string{"nästa vecka", "kan", "det", "inte", "snöa"},
+		[]string{"nästa vecka", "kan", "det", "", "regna"},
+		[]string{"nästa vecka", "kan", "det", "", "snöa"},
+		[]string{"nästa vecka", "kommer", "det", "inte", "regna"},
+		[]string{"nästa vecka", "kommer", "det", "inte", "snöa"},
+		[]string{"nästa vecka", "kommer", "det", "", "regna"},
+		[]string{"nästa vecka", "kommer", "det", "", "snöa"},
 	}
 	if !reflect.DeepEqual(expect, result) {
 		t.Errorf(fsExpGot, expect, result)

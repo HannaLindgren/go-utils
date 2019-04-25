@@ -6,31 +6,38 @@ import (
 
 // TYPES AND UTILITIES
 
-type input []string
-type template []input
+// Input is a set of interchangeable words, phonemes, or other units
+type Input []string
 
-type output []string
+// Template is a sequence of Inputs that can form a complete utterance or string or similar.
+// Usage examples in universal_generator_test.go
+type Template []Input
 
-func (o output) String() string {
-	var res string
-	res = strings.Join(o, " ")
-	res = strings.ReplaceAll(res, "  ", " ")
-	res = strings.TrimSpace(res)
-	return res
+// Output is a sequence of words, phonemes, units, generated from a template. From one template, you will get a slice of Outputs.
+type Output []string
+
+func (o Output) String(joiner string) string {
+	res := []string{}
+	for _, s := range o {
+		if s != "" {
+			res = append(res, s)
+		}
+	}
+	return strings.TrimSpace(strings.Join(res, joiner))
 }
 
-// EXPAND TEMPLATES
-
-func copyOf(input []string) []string {
+func copyOf(Input []string) []string {
 	res := []string{}
-	for _, s := range input {
+	for _, s := range Input {
 		res = append(res, s)
 	}
 	return res
 }
 
-func expandLoop(head input, tail []input, accs []output) []output {
-	res := []output{}
+// EXPANSION ALGORITHM
+
+func expandLoop(head Input, tail []Input, accs []Output) []Output {
+	res := []Output{}
 	for _, acc := range accs {
 		for _, add := range head {
 			newAcc := append(copyOf(acc), add)
@@ -43,6 +50,7 @@ func expandLoop(head input, tail []input, accs []output) []output {
 	return expandLoop(tail[0], tail[1:], res)
 }
 
-func expand(template []input) []output {
-	return expandLoop(template[0], template[1:], []output{{}})
+// Expand the input template
+func (t Template) Expand() []Output {
+	return expandLoop(t[0], t[1:], []Output{{}})
 }
