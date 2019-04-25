@@ -8,11 +8,12 @@ import (
 
 type input []string
 type template []input
-type generated []string
 
-func (g generated) String() string {
+type output []string
+
+func (o output) String() string {
 	var res string
-	res = strings.Join(g, " ")
+	res = strings.Join(o, " ")
 	res = strings.ReplaceAll(res, "  ", " ")
 	res = strings.TrimSpace(res)
 	return res
@@ -28,8 +29,8 @@ func copyOf(input []string) []string {
 	return res
 }
 
-func expandLoop(head input, tail []input, accs []generated) []generated {
-	res := []generated{}
+func expandLoop(head input, tail []input, accs []output) []output {
+	res := []output{}
 	for _, acc := range accs {
 		for _, add := range head {
 			newAcc := append(copyOf(acc), add)
@@ -42,6 +43,6 @@ func expandLoop(head input, tail []input, accs []generated) []generated {
 	return expandLoop(tail[0], tail[1:], res)
 }
 
-func expand(template []input) []generated {
-	return expandLoop(template[0], template[1:], []generated{{}})
+func expand(template []input) []output {
+	return expandLoop(template[0], template[1:], []output{{}})
 }

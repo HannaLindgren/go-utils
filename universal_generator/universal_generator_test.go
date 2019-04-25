@@ -45,7 +45,7 @@ func Test2(t *testing.T) {
 		input{"regna", "snöa"},
 	}
 	result := expand(template)
-	expect := []generated{
+	expect := []output{
 		strings.Split("idag ska det inte regna", " "),
 		strings.Split("idag ska det inte snöa", " "),
 		strings.Split("idag ska det  regna", " "),
