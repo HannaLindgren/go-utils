@@ -16,14 +16,20 @@ type Template []Input
 // Output is a sequence of words, phonemes, units, generated from a template. From one template, you will get a slice of Outputs.
 type Output []string
 
-func (o Output) String(joiner string) string {
+// String generates an output string with all elements joined by white space
+func (o Output) String() string {
+	return o.Join(" ")
+}
+
+// Join the elements with the specified separator string
+func (o Output) Join(separator string) string {
 	res := []string{}
 	for _, s := range o {
 		if s != "" {
 			res = append(res, s)
 		}
 	}
-	return strings.TrimSpace(strings.Join(res, joiner))
+	return strings.TrimSpace(strings.Join(res, separator))
 }
 
 func copyOf(Input []string) []string {

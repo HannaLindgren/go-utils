@@ -76,6 +76,7 @@ func Test2(t *testing.T) {
 		[]string{"nästa vecka", "kommer", "det", "", "regna"},
 		[]string{"nästa vecka", "kommer", "det", "", "snöa"},
 	}
+
 	if !reflect.DeepEqual(expect, result) {
 		t.Errorf(fsExpGot, expect, result)
 	}
