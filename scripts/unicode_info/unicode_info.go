@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/HannaLindgren/go-utils/scripts/util"
 	"golang.org/x/text/transform"
 	"golang.org/x/text/unicode/norm"
 	"golang.org/x/text/unicode/runenames"
@@ -14,6 +13,8 @@ import (
 	"strconv"
 	"strings"
 	"unicode"
+
+	"github.com/HannaLindgren/go-utils/scripts/util"
 )
 
 var ucNumberRe = regexp.MustCompile(`^(?:\\u|[uU][+])([a-fA-F0-9]{4})$`)
