@@ -92,7 +92,7 @@ func main() {
 	n1, n2 := len(lines1), len(lines2)
 	max := max(n1, n2)
 
-	fmt.Fprintf(os.Stderr, "CaseSens:  %v\n", *ignoreCase)
+	fmt.Fprintf(os.Stderr, "CaseSens:  %v\n", !*ignoreCase)
 	fmt.Fprintf(os.Stderr, "TrimSpace: %v\n", *trim)
 
 	nMismatch, sizeDiff := 0, 0
