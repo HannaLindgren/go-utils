@@ -6,14 +6,18 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 )
 
+var wSplitRe = regexp.MustCompile("[ ,()/-]")
+
 func process(s string) string {
 	runes := []rune(s)
-	len := len(runes)
-	if len > 0 {
-		return fmt.Sprintf("%d\t%s", len, s)
+	nChars := len(runes)
+	if nChars > 0 {
+		wds := wSplitRe.Split(s, -1)
+		return fmt.Sprintf("%d\t%d\t%s", nChars, len(wds), s)
 	}
 	return ""
 }
