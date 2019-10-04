@@ -10,6 +10,14 @@ import (
 	"strings"
 )
 
+// IsFile returns true if the given file exists (as a file or as a directory)
+func IsFile(fName string) bool {
+	if _, err := os.Stat(fName); os.IsNotExist(err) {
+		return false
+	}
+	return true
+}
+
 // GetFileReader reads an input file, gzipped or plain text, and returns an io.Reader for line scanning, along with the file handle, that needs to be closed after reading.
 func GetFileReader(fName string) (io.Reader, *os.File, error) {
 	fh, err := os.Open(fName)

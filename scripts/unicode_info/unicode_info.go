@@ -147,12 +147,16 @@ func main() {
 	}
 
 	if len(flag.Args()) > 0 {
-		for _, fName := range flag.Args() {
-			text, err := util.ReadFileToString(fName)
-			if err != nil {
-				log.Fatalf("%v", err)
+		for _, arg := range os.Args[1:] {
+			if util.IsFile(arg) {
+				text, err := util.ReadFileToString(arg)
+				if err != nil {
+					log.Fatalf("%v", err)
+				}
+				process(text)
+			} else {
+				process(arg)
 			}
-			process(text)
 		}
 	} else {
 		text, err := util.ReadStdinToString()
