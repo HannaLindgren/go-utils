@@ -1,6 +1,6 @@
-# github.com/gorilla/mux v1.7.2
+# github.com/gorilla/mux v1.7.3
 github.com/gorilla/mux
 # golang.org/x/text v0.3.2
-golang.org/x/text/unicode/norm
 golang.org/x/text/transform
+golang.org/x/text/unicode/norm
 golang.org/x/text/unicode/runenames
