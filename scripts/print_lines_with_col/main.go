@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"flag"
 	"fmt"
-	"github.com/HannaLindgren/go-utils/scripts/util"
+	"github.com/HannaLindgren/go-utils/scripts/lib"
 	"log"
 	"os"
 	"path/filepath"
@@ -35,7 +35,7 @@ func loadFieldIndices(fields string) {
 }
 
 func loadContentFile(fname string) {
-	r, fh, err := util.GetFileReader(fname)
+	r, fh, err := lib.GetFileReader(fname)
 	defer fh.Close()
 	if err != nil {
 		log.Fatalf("Couldn't read content file : %v", err)
@@ -60,7 +60,7 @@ func loadContentFile(fname string) {
 }
 
 func readFieldFile(fname string) {
-	r, fh, err := util.GetFileReader(fname)
+	r, fh, err := lib.GetFileReader(fname)
 	defer fh.Close()
 	if err != nil {
 		log.Fatalf("Couldn't read field file : %v", err)

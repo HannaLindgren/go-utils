@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/HannaLindgren/go-utils/scripts/util"
+	"github.com/HannaLindgren/go-utils/scripts/lib"
 	"log"
 	"os"
 	"path/filepath"
@@ -58,7 +58,7 @@ func main() {
 			log.Fatalf("%v", err)
 		}
 	}
-	err = util.ConvertAndPrintFromFilesOrStdin(process, os.Args[2:])
+	err = lib.ConvertAndPrintFromFilesOrStdin(process, os.Args[2:])
 	if err != nil {
 		log.Fatalf("%v", err)
 	}

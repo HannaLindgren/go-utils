@@ -3,7 +3,7 @@ package main
 import (
 	//"bufio"
 	"fmt"
-	"github.com/HannaLindgren/go-utils/scripts/util"
+	"github.com/HannaLindgren/go-utils/scripts/lib"
 	"log"
 	"os"
 	"path/filepath"
@@ -44,14 +44,14 @@ func main() {
 	if len(os.Args) >= 2 {
 		args = os.Args[2:]
 	}
-	err := util.ConvertAndPrintFromFilesOrStdin(process, args)
+	err := lib.ConvertAndPrintFromFilesOrStdin(process, args)
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
 
 	// for i := 2; i < len(os.Args); i++ {
 	// 	f := os.Args[i]
-	// 	r, fh, err := util.GetFileReader(f)
+	// 	r, fh, err := lib.GetFileReader(f)
 	// 	defer fh.Close()
 	// 	if err != nil {
 	// 		log.Fatalf("%v", err)

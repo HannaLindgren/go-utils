@@ -14,7 +14,7 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/HannaLindgren/go-utils/scripts/util"
+	"github.com/HannaLindgren/go-utils/scripts/lib"
 )
 
 var ucNumberRe = regexp.MustCompile(`^(?:\\u|[uU][+])([a-fA-F0-9]{4})$`)
@@ -125,6 +125,8 @@ func main() {
 		fmt.Fprintln(os.Stderr)
 		fmt.Fprintf(os.Stderr, "Usage: %s <files>\n", cmdname)
 		fmt.Fprintf(os.Stderr, "       or\n")
+		fmt.Fprintf(os.Stderr, "       %s <string>\n", cmdname)
+		fmt.Fprintf(os.Stderr, "       or\n")
 		fmt.Fprintf(os.Stderr, "       cat <file> | %s\n", cmdname)
 		fmt.Fprintf(os.Stderr, "       or\n")
 		fmt.Fprintf(os.Stderr, "       echo <string> | %s\n", cmdname)
@@ -148,8 +150,8 @@ func main() {
 
 	if len(flag.Args()) > 0 {
 		for _, arg := range os.Args[1:] {
-			if util.IsFile(arg) {
-				text, err := util.ReadFileToString(arg)
+			if lib.IsFile(arg) {
+				text, err := lib.ReadFileToString(arg)
 				if err != nil {
 					log.Fatalf("%v", err)
 				}
@@ -159,7 +161,7 @@ func main() {
 			}
 		}
 	} else {
-		text, err := util.ReadStdinToString()
+		text, err := lib.ReadStdinToString()
 		if err != nil {
 			log.Fatalf("%v", err)
 		}

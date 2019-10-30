@@ -8,7 +8,7 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/HannaLindgren/go-utils/scripts/util"
+	"github.com/HannaLindgren/go-utils/scripts/lib"
 )
 
 func blockFor(r rune) string {
@@ -53,8 +53,8 @@ func main() {
 	}
 	if len(os.Args[1:]) > 0 {
 		for _, arg := range os.Args[1:] {
-			if util.IsFile(arg) {
-				text, err := util.ReadFileToString(arg)
+			if lib.IsFile(arg) {
+				text, err := lib.ReadFileToString(arg)
 				if err != nil {
 					log.Fatalf("%v", err)
 				}
@@ -65,7 +65,7 @@ func main() {
 			}
 		}
 	} else {
-		text, err := util.ReadStdinToString()
+		text, err := lib.ReadStdinToString()
 		if err != nil {
 			log.Fatalf("%v", err)
 		}
