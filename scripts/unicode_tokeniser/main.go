@@ -8,20 +8,35 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"regexp"
 	"unicode"
 
 	"github.com/HannaLindgren/go-utils/scripts/lib"
 )
 
-var numerals = map[rune]bool{
-	'1': true, '2': true, '3': true, '4': true, '5': true, '6': true, '7': true, '8': true, '9': true, '0': true,
+type interval struct {
+	from int
+	to   int
 }
+
+func (i interval) matches(n int) bool {
+	return n >= i.from && n <= i.to
+}
+
+var numeric = interval{48, 57}
+var spacing = regexp.MustCompile(`\s`)
+var punctuation = regexp.MustCompile(`\pP`)
 
 func blockFor(r rune) string {
 	n := int(r)
-	if n >= 48 && n <= 57 {
-		//if _, ok := numerals[r]; ok {
+	if numeric.matches(n) {
 		return "Numeric"
+	}
+	if spacing.MatchString(string(r)) {
+		return "White space"
+	}
+	if punctuation.MatchString(string(r)) {
+		return "Punctuation"
 	}
 	for s, t := range unicode.Scripts {
 		if unicode.In(r, t) {
