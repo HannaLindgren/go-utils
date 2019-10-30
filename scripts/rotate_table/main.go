@@ -3,7 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"github.com/HannaLindgren/go-utils/scripts/util"
+	"github.com/HannaLindgren/go-utils/scripts/lib"
 	"log"
 	"os"
 	"path/filepath"
@@ -19,7 +19,7 @@ func main() {
 		os.Exit(1)
 	}
 	f := os.Args[1]
-	r, fh, err := util.GetFileReader(f)
+	r, fh, err := lib.GetFileReader(f)
 	defer fh.Close()
 	if err != nil {
 		log.Fatalf("%v", err)
