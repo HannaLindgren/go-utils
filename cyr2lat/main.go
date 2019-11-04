@@ -24,7 +24,7 @@ func ReadFile(fName string) []string {
 		return []string{}
 	}
 	s := strings.TrimSuffix(string(b), "\n")
-	s = strings.Replace("\r", "", -1)
+	s = strings.Replace(s, "\r", "", -1)
 	return strings.Split(s, "\n")
 }
 
