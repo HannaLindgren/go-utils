@@ -23,7 +23,9 @@ func ReadFile(fName string) []string {
 		log.Fatalf("%v", err)
 		return []string{}
 	}
-	return strings.Split(strings.TrimSuffix(string(b), "\n"), "\n")
+	s := strings.TrimSuffix(string(b), "\n")
+	s = strings.Replace("\r", "", -1)
+	return strings.Split(s, "\n")
 }
 
 
