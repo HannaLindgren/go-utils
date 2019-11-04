@@ -57,17 +57,17 @@ var charset = []pair{
 	pair{s1: "т", s2: "t"},
 	pair{s1: "у", s2: "u"},
 	pair{s1: "ф", s2: "f"},
-	pair{s1: "х", s2: "ch"},
+	pair{s1: "х", s2: "ch"}, // kh
 	pair{s1: "ц", s2: "ts"},
-	pair{s1: "ч", s2: "tj"},
-	pair{s1: "ш", s2: "sj"},
-	pair{s1: "щ", s2: "sjtj"},
-	pair{s1: "ъ", s2: ""},
-	pair{s1: "ь", s2: ""},
-	pair{s1: "э", s2: "e"},
-	pair{s1: "ю", s2: "ju"},
-	pair{s1: "я", s2: "ja"},
+	pair{s1: "ч", s2: "tj"}, // ch
+	pair{s1: "ш", s2: "sj"}, // sh
+	pair{s1: "щ", s2: "sjtj"}, // shch
+	pair{s1: "ъ", s2: ""}, // ’
 	pair{s1: "ы", s2: "y"},
+	pair{s1: "ь", s2: ""}, // ’
+	pair{s1: "э", s2: "e"},
+	pair{s1: "ю", s2: "ju"}, // yu
+	pair{s1: "я", s2: "ja"}, // ya
 	
 	// common
 	pair{s1: " ", s2: " "},
