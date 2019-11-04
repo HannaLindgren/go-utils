@@ -65,6 +65,7 @@ var charset = []pair{
 	pair{s1: "э", s2: "e"},
 	pair{s1: "ю", s2: "ju"},
 	pair{s1: "я", s2: "ja"},
+	pair{s1: "ы", s2: "y"},
 	
 	// common
 	pair{s1: " ", s2: " "},
