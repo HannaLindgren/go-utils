@@ -75,6 +75,7 @@ var charset = []pair{
 	pair{s1: "!", s2: "!"},
 	pair{s1: "–", s2: "–"},
 	pair{s1: "-", s2: "-"},
+	pair{s1: ":", s2: ":"},
 }
 
 func convert(chsAll []pair, s string) string {
