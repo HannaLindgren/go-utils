@@ -23,7 +23,7 @@ func isFile(fName string) bool {
 }
 
 func readFile(fName string) []string {
-	b, err := ioutil.ReadFile(fName)
+	b, err := ioutil.ReadFile(filepath.Clean(fName))
 	if err != nil {
 		log.Fatalf("%v", err)
 		return []string{}

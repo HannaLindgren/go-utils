@@ -37,11 +37,11 @@ func main() {
 
 				compared[compID] = true
 
-				bts1, err := ioutil.ReadFile(f1)
+				bts1, err := ioutil.ReadFile(filepath.Clean(f1))
 				if err != nil {
 					log.Fatalf("Couldn't load file %s : %v", f1, err)
 				}
-				bts2, err := ioutil.ReadFile(f2)
+				bts2, err := ioutil.ReadFile(filepath.Clean(f2))
 				if err != nil {
 					log.Fatalf("Couldn't load file %s : %v", f2, err)
 				}

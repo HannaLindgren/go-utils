@@ -7,6 +7,7 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -20,7 +21,7 @@ func IsFile(fName string) bool {
 
 // GetFileReader reads an input file, gzipped or plain text, and returns an io.Reader for line scanning, along with the file handle, that needs to be closed after reading.
 func GetFileReader(fName string) (io.Reader, *os.File, error) {
-	fh, err := os.Open(fName)
+	fh, err := os.Open(filepath.Clean(fName))
 	//defer fh.Close()
 	if err != nil {
 		return nil, fh, fmt.Errorf("Couldn't open file %s for reading : %v\n", fName, err)
@@ -49,7 +50,7 @@ type fn func(string) string
 
 // ReadFileToString
 func ReadFileToString(fName string) (string, error) {
-	b, err := ioutil.ReadFile(fName)
+	b, err := ioutil.ReadFile(filepath.Clean(fName))
 	if err != nil {
 		return "", err
 	}

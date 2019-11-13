@@ -19,7 +19,7 @@ func main() {
 	}
 	for i := 1; i < len(os.Args); i++ {
 		file := os.Args[i]
-		bts, err := ioutil.ReadFile(file)
+		bts, err := ioutil.ReadFile(filepath.Clean(file))
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Couldn't read file %s : %v\n", file, err)
 			os.Exit(1)

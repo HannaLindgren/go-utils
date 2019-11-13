@@ -146,7 +146,10 @@ func main() {
 				log.Fatal(err)
 			}
 		}
-		w.Flush()
+		err = w.Flush()
+		if err != nil {
+			log.Fatal(err)
+		}
 
 		fmt.Fprintf(os.Stderr, "MISSING PRINTED TO FILE %s\n", missingFile)
 	}

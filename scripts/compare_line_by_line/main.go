@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -17,7 +18,7 @@ var quiet *bool
 const cmdname = "compare_line_by_line"
 
 func readLines(file string) []string {
-	bts, err := ioutil.ReadFile(file)
+	bts, err := ioutil.ReadFile(filepath.Clean(file))
 	if err != nil {
 		log.Fatalf("Couldn't read file %s : %v", file, err)
 	}

@@ -82,7 +82,7 @@ func max(n1, n2 int) int {
 }
 
 func readLines(file string) []string {
-	bts, err := ioutil.ReadFile(file)
+	bts, err := ioutil.ReadFile(filepath.Clean(file))
 	if err != nil {
 		log.Fatalf("Couldn't read file %s : %v", file, err)
 	}
