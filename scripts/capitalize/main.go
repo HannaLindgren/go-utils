@@ -29,9 +29,7 @@ func tokenize(s string) []string {
 	for _, delim := range delims {
 		tmp := []string{}
 		for _, s := range acc {
-			for _, split := range strings.SplitAfter(s, delim) {
-				tmp = append(tmp, split)
-			}
+			tmp = append(tmp, strings.SplitAfter(s, delim)...)
 		}
 		acc = tmp
 	}

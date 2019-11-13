@@ -24,13 +24,13 @@ func GetFileReader(fName string) (io.Reader, *os.File, error) {
 	fh, err := os.Open(filepath.Clean(fName))
 	//defer fh.Close()
 	if err != nil {
-		return nil, fh, fmt.Errorf("Couldn't open file %s for reading : %v\n", fName, err)
+		return nil, fh, fmt.Errorf("couldn't open file %s for reading : %v", fName, err)
 	}
 
 	if strings.HasSuffix(fName, ".gz") {
 		gz, err := gzip.NewReader(fh)
 		if err != nil {
-			return nil, fh, fmt.Errorf("Couldn't to open gz reader : %v", err)
+			return nil, fh, fmt.Errorf("couldn't to open gz reader : %v", err)
 		}
 		return io.Reader(gz), fh, nil
 	}

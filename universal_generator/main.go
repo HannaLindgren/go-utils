@@ -34,9 +34,7 @@ func (o Output) Join(separator string) string {
 
 func copyOf(Input []string) []string {
 	res := []string{}
-	for _, s := range Input {
-		res = append(res, s)
-	}
+	res = append(res, Input...)
 	return res
 }
 

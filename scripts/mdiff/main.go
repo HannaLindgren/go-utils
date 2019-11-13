@@ -50,9 +50,10 @@ func main() {
 				} else {
 					fmt.Printf("Files %s and %s differ\n", f1, f2)
 				}
-			} else {
-				//fmt.Printf("Files %s and %s already compared\n", f1, f2)
 			}
+			// else {
+			// 	fmt.Printf("Files %s and %s already compared\n", f1, f2)
+			// }
 		}
 	}
 }

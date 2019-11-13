@@ -6,19 +6,9 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"unicode"
 
 	"github.com/HannaLindgren/go-utils/scripts/lib"
 )
-
-func blockFor(r rune) string {
-	for s, t := range unicode.Scripts {
-		if unicode.In(r, t) {
-			return s
-		}
-	}
-	return "<UNDEF>"
-}
 
 func codeFor(r rune) string {
 	uc := fmt.Sprintf("%U", r)
@@ -26,8 +16,7 @@ func codeFor(r rune) string {
 }
 
 func processRune(r rune) string {
-	uc := codeFor(r)
-	return fmt.Sprintf("%s", uc)
+	return codeFor(r)
 }
 
 const newline rune = '\n'

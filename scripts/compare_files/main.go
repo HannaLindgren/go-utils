@@ -32,7 +32,8 @@ const (
 )
 
 var modes = []output{f1, f2, all, both, diff, stats}
-var modesString string = strings.Join(strings.Fields(fmt.Sprint(modes)), "|")
+
+//var modesString string = strings.Join(strings.Fields(fmt.Sprint(modes)), "|")
 
 func modesHelp(prefix string) string {
 	return strings.Join([]string{
@@ -95,7 +96,7 @@ func readLine(lines []string, lineNo int) (string, error) {
 	if lineNo < len(lines) {
 		return lines[lineNo], nil
 	}
-	return "", fmt.Errorf("Line %d is after EOF", lineNo)
+	return "", fmt.Errorf("line %d is after EOF", lineNo)
 }
 
 var ignoreCase *bool

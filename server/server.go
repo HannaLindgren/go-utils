@@ -38,9 +38,7 @@ func execCmd(cmd *exec.Cmd) (bytes.Buffer, bytes.Buffer, error) {
 
 func handlerFunc(w http.ResponseWriter, r *http.Request) {
 	cmdArgsWithVars := []string{}
-	for _, s := range cmdArgs {
-		cmdArgsWithVars = append(cmdArgsWithVars, s)
-	}
+	cmdArgsWithVars = append(cmdArgsWithVars, cmdArgs...)
 	for _, name := range cmdVars {
 		value := getParam(name, r)
 		if value != "" {

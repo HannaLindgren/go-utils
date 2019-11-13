@@ -33,7 +33,7 @@ func readLine(lines []string, lineNo int) (string, error) {
 	if lineNo < len(lines) {
 		return lines[lineNo], nil
 	}
-	return "", fmt.Errorf("Line %d is after EOF", lineNo)
+	return "", fmt.Errorf("line %d is after EOF", lineNo)
 }
 
 func equal(s1, s2 string) bool {

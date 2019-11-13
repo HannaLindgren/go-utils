@@ -134,10 +134,10 @@ func main() {
 	if len(missing) > 0 {
 		missingFile := filepath.Join(os.TempDir(), fmt.Sprintf("%s_missing.txt", cmdname))
 		f, err := os.Create(missingFile)
-		defer f.Close()
 		if err != nil {
 			log.Fatal(err)
 		}
+		defer f.Close()
 		w := bufio.NewWriter(f)
 		for _, s := range missing {
 			out := fmt.Sprintf("%s\n", s)
