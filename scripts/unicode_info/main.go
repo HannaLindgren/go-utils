@@ -98,7 +98,7 @@ func process(s string) {
 		}
 		sx = strings.Join(tmp, " ")
 	}
-	for _, r := range []rune(normalize(sx)) {
+	for _, r := range normalize(sx) {
 		name := nameFor(r)
 		uc := codeFor(r)
 		block := blockFor(r)

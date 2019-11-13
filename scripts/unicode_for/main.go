@@ -22,7 +22,7 @@ func processRune(r rune) string {
 const newline rune = '\n'
 
 func process(s string) {
-	for _, r := range []rune(s) {
+	for _, r := range s {
 		fmt.Print(processRune(r))
 		if r == newline {
 			fmt.Println()

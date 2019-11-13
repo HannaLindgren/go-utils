@@ -77,7 +77,7 @@ func process(s string) {
 	sx := s
 	var lastBlock string
 	var accu = []rune{}
-	for _, r := range []rune(normalize(sx)) {
+	for _, r := range normalize(sx) {
 		block := blockFor(r)
 		if len(accu) > 0 && block != lastBlock {
 			printAccu(accu, lastBlock)
