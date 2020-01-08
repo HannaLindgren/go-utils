@@ -124,6 +124,7 @@ func convert(s string) string {
 	for _, p := range international {
 		intAll = append(intAll, p)
 		intAll = append(intAll, pair{s1: upcaseInitial(p.s1), s2: upcaseInitial(p.s2)})
+		intAll = append(intAll, pair{s1: upcase(p.s1), s2: upcase(p.s2)})
 	}
 	res := innerConvert(intAll, s, true)
 	if *swedishOutput {
@@ -131,6 +132,7 @@ func convert(s string) string {
 		for _, p := range swePairs {
 			sweAll = append(sweAll, p)
 			sweAll = append(sweAll, pair{s1: upcaseInitial(p.s1), s2: upcaseInitial(p.s2)})
+			sweAll = append(sweAll, pair{s1: upcase(p.s1), s2: upcase(p.s2)})
 		}
 		res = innerConvert(sweAll, res, false)
 		for _, p := range sweREs {
@@ -169,6 +171,10 @@ func innerConvert(chsAll []pair, s string, requireAllMapped bool) string {
 		}
 	}
 	return strings.Join(res, "")
+}
+
+func upcase(s string) string {
+	return strings.ToUpper(s)
 }
 
 func upcaseInitial(s string) string {
