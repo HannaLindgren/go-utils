@@ -5,6 +5,7 @@ package main
 // https://tt.se/tt-spraket/ord-och-begrepp/internationellt/andra-sprak/ryska/
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
 	"io/ioutil"
@@ -189,6 +190,8 @@ func main() {
 
 	cmdname := filepath.Base(os.Args[0])
 	swedishOutput = flag.Bool("s", false, "Swedish (TT style) output (default: international output)")
+	echoInput := flag.Bool("e", false, "Echo input (default: false)")
+	help := flag.Bool("h", false, "Print help and exit")
 
 	var printUsage = func() {
 		fmt.Fprintln(os.Stderr, "Transliteration from Cyrillic to Latin script.")
@@ -206,20 +209,41 @@ func main() {
 
 	flag.Parse()
 
-	if flag.NArg() < 1 {
+	if *help { // if flag.NArg() < 1 {
 		printUsage()
 		os.Exit(0)
 	}
 
-	for _, arg := range flag.Args() {
-		if isFile(arg) {
-			for _, line := range readFile(arg) {
-				res := convert(line)
+	if len(flag.Args()) > 0 {
+		for _, arg := range flag.Args() {
+			if isFile(arg) {
+				for _, line := range readFile(arg) {
+					res := convert(line)
+					if *echoInput {
+						fmt.Printf("%s\t%s\n", line, res)
+					} else {
+						fmt.Printf("%s\n", res)
+					}
+				}
+			} else {
+				res := convert(arg)
+				if *echoInput {
+					fmt.Printf("%s\t%s\n", arg, res)
+				} else {
+					fmt.Printf("%s\n", res)
+				}
+			}
+		}
+	} else {
+		scanner := bufio.NewScanner(os.Stdin)
+		for scanner.Scan() {
+			s := scanner.Text()
+			res := convert(s)
+			if *echoInput {
+				fmt.Printf("%s\t%s\n", s, res)
+			} else {
 				fmt.Printf("%s\n", res)
 			}
-		} else {
-			res := convert(arg)
-			fmt.Printf("%s\n", res)
 		}
 	}
 }
