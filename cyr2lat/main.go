@@ -44,7 +44,7 @@ type rPair struct {
 	to   string
 }
 
-var international = []pair{ // Road signs @ https://en.wikipedia.org/wiki/Romanization_of_Russian
+var international = []pair{ // https://en.wikipedia.org/wiki/Romanization_of_Russian
 	pair{s1: "а", s2: "a"},
 	pair{s1: "б", s2: "b"},
 	pair{s1: "в", s2: "v"},
@@ -55,7 +55,7 @@ var international = []pair{ // Road signs @ https://en.wikipedia.org/wiki/Romani
 	pair{s1: "ж", s2: "zh"},
 	pair{s1: "з", s2: "z"},
 	pair{s1: "и", s2: "i"},
-	pair{s1: "й", s2: "y"},
+	pair{s1: "й", s2: "j"},
 	pair{s1: "к", s2: "k"},
 	pair{s1: "л", s2: "l"},
 	pair{s1: "м", s2: "m"},
@@ -76,8 +76,8 @@ var international = []pair{ // Road signs @ https://en.wikipedia.org/wiki/Romani
 	pair{s1: "ы", s2: "y"},
 	pair{s1: "ь", s2: "’"},
 	pair{s1: "э", s2: "e"},
-	pair{s1: "ю", s2: "yu"},
-	pair{s1: "я", s2: "ya"},
+	pair{s1: "ю", s2: "ju"},
+	pair{s1: "я", s2: "ja"},
 }
 
 var commonChars = map[string]bool{
@@ -119,14 +119,17 @@ var sweREs = []rPair{ // https://tt.se/tt-spraket/ord-och-begrepp/internationell
 	rPair{from: regexp.MustCompile(`(?i)y(\b|$)`), to: "yj$2"},
 }
 
-func convert(s string) string {
+func convert(s string) (string, error) {
 	intAll := []pair{}
 	for _, p := range international {
 		intAll = append(intAll, p)
 		intAll = append(intAll, pair{s1: upcaseInitial(p.s1), s2: upcaseInitial(p.s2)})
 		intAll = append(intAll, pair{s1: upcase(p.s1), s2: upcase(p.s2)})
 	}
-	res := innerConvert(intAll, s, true)
+	res, err := innerConvert(intAll, s, true)
+	if err != nil {
+		return "", err
+	}
 	if *swedishOutput {
 		sweAll := []pair{}
 		for _, p := range swePairs {
@@ -134,15 +137,18 @@ func convert(s string) string {
 			sweAll = append(sweAll, pair{s1: upcaseInitial(p.s1), s2: upcaseInitial(p.s2)})
 			sweAll = append(sweAll, pair{s1: upcase(p.s1), s2: upcase(p.s2)})
 		}
-		res = innerConvert(sweAll, res, false)
+		res, err := innerConvert(sweAll, res, false)
+		if err != nil {
+			return "", err
+		}
 		for _, p := range sweREs {
 			res = p.from.ReplaceAllString(res, p.to)
 		}
 	}
-	return res
+	return res, nil
 }
 
-func innerConvert(chsAll []pair, s string, requireAllMapped bool) string {
+func innerConvert(chsAll []pair, s string, requireAllMapped bool) (string, error) {
 	sOrig := s
 	res := []string{}
 	for len(s) > 0 {
@@ -163,14 +169,14 @@ func innerConvert(chsAll []pair, s string, requireAllMapped bool) string {
 		}
 		if s == sStart { // nothing found to map for this prefix
 			if requireAllMapped {
-				log.Fatalf("Couldn't convert '%s' at '%s'", sOrig, s)
+				return "", fmt.Errorf("Couldn't convert '%s' in '%s'", s, sOrig)
 			} else if s == sStart {
 				res = append(res, head)
 				s = strings.TrimPrefix(s, head)
 			}
 		}
 	}
-	return strings.Join(res, "")
+	return strings.Join(res, ""), nil
 }
 
 func upcase(s string) string {
@@ -190,13 +196,31 @@ func upcaseInitial(s string) string {
 	return head + tail
 }
 
-var swedishOutput *bool
+func process(s string) {
+	res, err := convert(s)
+	if err != nil {
+		if *failOnError {
+			log.Fatalf(fmt.Sprintf("%v", err))
+		} else {
+			fmt.Fprintf(os.Stderr, fmt.Sprintf("ERROR %s\t%v\n", s, err))
+			return
+		}
+	}
+	if *echoInput {
+		fmt.Printf("%s\t%s\n", s, res)
+	} else {
+		fmt.Printf("%s\n", res)
+	}
+}
+
+var swedishOutput, echoInput, failOnError *bool
 
 func main() {
 
 	cmdname := filepath.Base(os.Args[0])
 	swedishOutput = flag.Bool("s", false, "Swedish (TT style) output (default: international output)")
-	echoInput := flag.Bool("e", false, "Echo input (default: false)")
+	echoInput = flag.Bool("e", false, "Echo input (default: false)")
+	failOnError = flag.Bool("f", false, "Fail on error (default: false)")
 	help := flag.Bool("h", false, "Print help and exit")
 
 	var printUsage = func() {
@@ -226,32 +250,17 @@ func main() {
 		for _, arg := range flag.Args() {
 			if isFile(arg) {
 				for _, line := range readFile(arg) {
-					res := convert(line)
-					if *echoInput {
-						fmt.Printf("%s\t%s\n", line, res)
-					} else {
-						fmt.Printf("%s\n", res)
-					}
+					process(line)
 				}
 			} else {
-				res := convert(arg)
-				if *echoInput {
-					fmt.Printf("%s\t%s\n", arg, res)
-				} else {
-					fmt.Printf("%s\n", res)
-				}
+				process(arg)
 			}
 		}
 	} else {
 		scanner := bufio.NewScanner(os.Stdin)
 		for scanner.Scan() {
 			s := scanner.Text()
-			res := convert(s)
-			if *echoInput {
-				fmt.Printf("%s\t%s\n", s, res)
-			} else {
-				fmt.Printf("%s\n", res)
-			}
+			process(s)
 		}
 	}
 }
