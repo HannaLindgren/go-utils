@@ -198,6 +198,8 @@ func main() {
 		fmt.Fprintln(os.Stderr)
 		fmt.Fprintln(os.Stderr, "Usage:")
 		fmt.Fprintln(os.Stderr, cmdname+" <input file(s)>")
+		fmt.Fprintln(os.Stderr, cmdname+" <input string(s)>")
+		fmt.Fprintln(os.Stderr, "cat <input file(s)> | "+cmdname)
 		fmt.Fprintln(os.Stderr, "\nOptional flags:")
 		flag.PrintDefaults()
 	}
