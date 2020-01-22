@@ -15,6 +15,9 @@ var fieldSep = "\t"
 var is = []int64{}
 
 func process(s string) string {
+	if s == "" {
+		return s
+	}
 	fs := strings.Split(s, fieldSep)
 	output := []string{}
 	for _, i := range is {
