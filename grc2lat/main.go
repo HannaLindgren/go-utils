@@ -70,6 +70,8 @@ var international = []pair{
 	pair{s1: "ώ", s2: "ó"},
 	pair{s1: "ϊ", s2: "ï"},
 	pair{s1: "ΐ", s2: "ḯ"},
+	pair{s1: "ϋ", s2: "ü"},
+	pair{s1: "ΰ", s2: "ǘ"},
 
 	pair{s1: "α", s2: "a"},
 	pair{s1: "β", s2: "v"},
@@ -104,7 +106,7 @@ var international = []pair{
 	pair{s1: "ω", s2: "o"},
 }
 
-var commonCharsRE = regexp.MustCompile("[A-Za-z]")
+var commonCharsRE = regexp.MustCompile("[A-Za-z0-9()@΄$ï]")
 
 var commonChars = map[string]bool{
 	" ":  true,
