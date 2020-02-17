@@ -35,27 +35,44 @@ type pair struct {
 	s2 string
 }
 
-type rPair struct {
+type repair struct {
 	from *regexp.Regexp
 	to   string
 }
 
-var international = []pair{
-	pair{s1: "αι", s2: "ai"},
-	pair{s1: "αυ", s2: "au"},
-	pair{s1: "ει", s2: "ei"},
-	pair{s1: "ευ", s2: "eu"},
-	pair{s1: "ηυ", s2: "iy"},
-	pair{s1: "οι", s2: "oi"},
-	pair{s1: "ου", s2: "ou"},
-	pair{s1: "υι", s2: "yi"},
-	pair{s1: "ωυ", s2: "oy"},
+// https://en.wikipedia.org/wiki/Romanization_of_Greek#Modern_Greek
 
+var mapRegexps = []repair{
+	repair{from: regexp.MustCompile(`(^|[\s/()'".!?-])Γ[Κκ](.+)`), to: "${1}G${2}"},
+	repair{from: regexp.MustCompile(`(^|[\s/()'".!?-])Μ[Ππ](.+)`), to: "${1}B${2}"},
+	repair{from: regexp.MustCompile(`(^|[\s/()'".!?-])Ν[Ττ](.+)`), to: "${1}D${2}"},
+	repair{from: regexp.MustCompile(`(^|[\s/()'".!?-])(?i)γκ(.+)`), to: "${1}g${2}"},
+	repair{from: regexp.MustCompile(`(^|[\s/()'".!?-])(?i)μπ(.+)`), to: "${1}b${2}"},
+	repair{from: regexp.MustCompile(`(^|[\s/()'".!?-])(?i)ντ(.+)`), to: "${1}d${2}"},
+}
+
+var maptable = []pair{
+	pair{s1: "αι", s2: "ai"},
+	pair{s1: "ει", s2: "ei"},
+	pair{s1: "οι", s2: "oi"},
+	pair{s1: "υι", s2: "yi"},
+
+	pair{s1: "αυ", s2: "au"},
+	pair{s1: "ευ", s2: "eú"},
+	pair{s1: "ου", s2: "ou"},
+
+	pair{s1: "αύ", s2: "au"},
+	pair{s1: "εύ", s2: "eú"},
+	pair{s1: "ού", s2: "oú"},
 	pair{s1: "άυ", s2: "áu"},
 	pair{s1: "έυ", s2: "éu"},
+	pair{s1: "όυ", s2: "óu"},
+
 	pair{s1: "ήυ", s2: "íy"},
 	pair{s1: "υί", s2: "yí"},
-	pair{s1: "όυ", s2: "óu"},
+	pair{s1: "ηυ", s2: "iy"},
+
+	pair{s1: "ωυ", s2: "oy"},
 	pair{s1: "ώυ", s2: "óy"},
 
 	pair{s1: "μμπ", s2: "mb"},
@@ -75,7 +92,6 @@ var international = []pair{
 
 	pair{s1: "α", s2: "a"},
 	pair{s1: "β", s2: "v"},
-	//pair{s1: "β", s2: "b"},
 	pair{s1: "γγ", s2: "ng"},
 	pair{s1: "γκ", s2: "nk"},
 	pair{s1: "γξ", s2: "nx"},
@@ -106,7 +122,7 @@ var international = []pair{
 	pair{s1: "ω", s2: "o"},
 }
 
-var commonCharsRE = regexp.MustCompile("[A-Za-z0-9()@΄$ï]")
+var commonCharsRE = regexp.MustCompile("[A-Za-z0-9()@΄$ï_]")
 
 var commonChars = map[string]bool{
 	" ":  true,
@@ -125,8 +141,12 @@ var commonChars = map[string]bool{
 }
 
 func convert(s string) (string, error) {
+	for _, re := range mapRegexps {
+		s = re.from.ReplaceAllString(s, re.to)
+	}
+
 	intAll := []pair{}
-	for _, p := range international {
+	for _, p := range maptable {
 		intAll = append(intAll, p)
 		intAll = append(intAll, pair{s1: upcaseInitial(p.s1), s2: upcaseInitial(p.s2)})
 		intAll = append(intAll, pair{s1: upcase(p.s1), s2: upcase(p.s2)})
@@ -226,7 +246,7 @@ func process(s string) {
 	}
 }
 
-var swedishOutput, echoInput, failOnError *bool
+var echoInput, failOnError *bool
 
 func main() {
 
