@@ -58,7 +58,7 @@ var maptable = []pair{
 	pair{s1: "υι", s2: "yi"},
 
 	pair{s1: "αυ", s2: "au"},
-	pair{s1: "ευ", s2: "eú"},
+	pair{s1: "ευ", s2: "eu"},
 	pair{s1: "ου", s2: "ou"},
 
 	pair{s1: "αύ", s2: "au"},
@@ -122,7 +122,7 @@ var maptable = []pair{
 	pair{s1: "ω", s2: "o"},
 }
 
-var commonCharsRE = regexp.MustCompile("[A-Za-z0-9()@΄$ï_]")
+var commonCharsRE = regexp.MustCompile("[A-Za-z0-9()@΄$ï*_]")
 
 var commonChars = map[string]bool{
 	" ":  true,
