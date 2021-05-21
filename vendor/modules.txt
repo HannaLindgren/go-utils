@@ -1,6 +1,13 @@
+# github.com/360EntSecGroup-Skylar/excelize v1.4.1
+## explicit
+github.com/360EntSecGroup-Skylar/excelize
 # github.com/gorilla/mux v1.7.3
+## explicit
 github.com/gorilla/mux
+# github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826
+github.com/mohae/deepcopy
 # golang.org/x/text v0.3.2
+## explicit
 golang.org/x/text/transform
 golang.org/x/text/unicode/norm
 golang.org/x/text/unicode/runenames
