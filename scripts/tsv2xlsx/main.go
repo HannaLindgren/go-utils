@@ -51,7 +51,6 @@ func main() {
 	}
 
 	for _, tsvFile := range flag.Args() {
-		//baseName := path.Base(tsvFile)
 		baseName := strings.TrimSuffix(tsvFile, filepath.Ext(tsvFile))
 		xlsxFile := fmt.Sprintf("%s.xlsx", baseName)
 
@@ -68,9 +67,14 @@ func main() {
 			}
 		}
 
+		lines := strings.Split(content, "\n")
+
 		index := xlsx.NewSheet(sheetName)
 
-		lines := strings.Split(content, "\n")
+		// Set column width
+		// xlsx.SetColWidth(sheetName, "C", "C", 82)
+		// xlsx.SetColWidth(sheetName, "E", "E", 82)
+
 		for li, l := range lines {
 			for fi, f := range strings.Split(l, fieldSep) {
 				row := li + 1
