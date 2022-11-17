@@ -11,7 +11,7 @@ import (
 	"github.com/HannaLindgren/go-utils/unicode"
 )
 
-var up unicode.UnicodeProcessor
+var up unicode.Processor
 
 func process(s string) {
 	for _, ui := range up.UnicodeInfo(s) {
@@ -53,7 +53,7 @@ func main() {
 		os.Exit(0)
 	}
 
-	up = unicode.UnicodeProcessor{
+	up = unicode.Processor{
 		NFC:                       *nfc,
 		NFD:                       *nfd,
 		ConvertFromUnicodeNumbers: *convertFromUnicodeNumbers,

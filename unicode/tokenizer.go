@@ -8,7 +8,7 @@ import (
 // A sequence of characters is treated as one token, as long as they belong to the same unicode code block
 // Numerals, spacing and punctuation are treated as separates code blocks
 type Tokenizer struct {
-	UP UnicodeProcessor
+	UP Processor
 }
 
 type Token struct {

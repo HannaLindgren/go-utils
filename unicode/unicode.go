@@ -77,8 +77,8 @@ func ucNumber2String(s string) string {
 	return string(r)
 }
 
-// UnicodeInfo holds a set of unicode-related information for a rune
-type UnicodeInfo struct {
+// Info holds a set of unicode-related information for a rune
+type Info struct {
 	// A string representation of the input rune (for special newline and tab, the string representation is empty in this implementation)
 	String string
 
@@ -92,8 +92,8 @@ type UnicodeInfo struct {
 	CodeBlock string
 }
 
-// UnicodeProcessor
-type UnicodeProcessor struct {
+// Processor
+type Processor struct {
 	NFC                       bool
 	NFD                       bool
 	ConvertFromUnicodeNumbers bool
@@ -118,17 +118,17 @@ func NameFor(r rune) string {
 }
 
 // Normalize according to the NFC/NFD settings in the UnicodeProcessor
-func (up *UnicodeProcessor) Normalize(s string) string {
-	if up.NFC {
+func (p *Processor) Normalize(s string) string {
+	if p.NFC {
 		return NFC(s)
-	} else if up.NFD {
+	} else if p.NFD {
 		return NFD(s)
 	}
 	return s
 }
 
-// UnicodeInfoR Returns tab-separated unicode information for each input rune
-func (up *UnicodeProcessor) UnicodeInfoR(r rune) UnicodeInfo {
+// RuneInfo Returns tab-separated unicode information for each input rune
+func (p *Processor) RuneInfo(r rune) Info {
 	name := NameFor(r)
 	uc := UnicodeForR(r)
 	block := BlockFor(r)
@@ -137,7 +137,7 @@ func (up *UnicodeProcessor) UnicodeInfoR(r rune) UnicodeInfo {
 		char = ""
 	}
 	//return fmt.Sprintf("%s\t%s\t%s\t%s\n", thisS, uc, name, block)
-	return UnicodeInfo{
+	return Info{
 		String:    char,
 		Unicode:   uc,
 		CharName:  name,
@@ -145,11 +145,11 @@ func (up *UnicodeProcessor) UnicodeInfoR(r rune) UnicodeInfo {
 	}
 }
 
-// UnicodeInfo Creates a list of tab-separated unicode information for each input rune
-func (up *UnicodeProcessor) UnicodeInfo(s string) []UnicodeInfo {
-	res := []UnicodeInfo{}
+// Info Creates a list of tab-separated unicode information for each input rune
+func (p *Processor) UnicodeInfo(s string) []Info {
+	res := []Info{}
 	sx := s
-	if up.ConvertFromUnicodeNumbers {
+	if p.ConvertFromUnicodeNumbers {
 		tmp := []string{}
 		for _, chunk := range strings.Split(sx, " ") {
 			if isUcNumber(chunk) {
@@ -160,8 +160,8 @@ func (up *UnicodeProcessor) UnicodeInfo(s string) []UnicodeInfo {
 		}
 		sx = strings.Join(tmp, " ")
 	}
-	for _, r := range up.Normalize(sx) {
-		res = append(res, up.UnicodeInfoR(r))
+	for _, r := range p.Normalize(sx) {
+		res = append(res, p.RuneInfo(r))
 	}
 	return res
 }

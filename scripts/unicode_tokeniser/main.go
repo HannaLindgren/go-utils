@@ -46,7 +46,7 @@ func main() {
 	}
 
 	toker := unicode.Tokenizer{
-		UP: unicode.UnicodeProcessor{
+		UP: unicode.Processor{
 			NFC: *nfc,
 			NFD: *nfd,
 		},
