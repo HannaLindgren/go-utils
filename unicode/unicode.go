@@ -99,6 +99,7 @@ type UnicodeProcessor struct {
 	ConvertFromUnicodeNumbers bool
 }
 
+// BlockFor returns the name of the unicode script where the input rune belongs
 func BlockFor(r rune) string {
 	for s, t := range unicode.Scripts {
 		if unicode.In(r, t) {
@@ -108,6 +109,7 @@ func BlockFor(r rune) string {
 	return "<UNDEF>"
 }
 
+// NameFor returns the name of the input rune
 func NameFor(r rune) string {
 	if name, ok := specialChars[r]; ok {
 		return name
@@ -115,6 +117,7 @@ func NameFor(r rune) string {
 	return runenames.Name(r)
 }
 
+// Normalize according to the NFC/NFD settings in the UnicodeProcessor
 func (up *UnicodeProcessor) Normalize(s string) string {
 	if up.NFC {
 		return NFC(s)

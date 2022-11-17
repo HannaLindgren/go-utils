@@ -4,6 +4,9 @@ import (
 	"regexp"
 )
 
+// Tokenizer is a simple unicode tokenizer, that groups characters by code block
+// A sequence of characters is treated as one token, as long as they belong to the same unicode code block
+// Numerals, spacing and punctuation are treated as separates code blocks
 type Tokenizer struct {
 	UP UnicodeProcessor
 }
@@ -26,6 +29,7 @@ var numericCharInterval = interval{48, 57}
 var spacingRE = regexp.MustCompile(`\s`)
 var punctRE = regexp.MustCompile(`\pP`)
 
+// BlockFor returns the name of the unicode block for the input rune. Numerals, spacing and punctuation are treated as separate code blocks.
 func (t *Tokenizer) BlockFor(r rune) string {
 	n := int(r)
 	if numericCharInterval.matches(n) {

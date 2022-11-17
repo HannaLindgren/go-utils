@@ -9,7 +9,21 @@ import (
 
 	"github.com/HannaLindgren/go-utils/scripts/lib"
 	str "github.com/HannaLindgren/go-utils/strings"
+	"github.com/HannaLindgren/go-utils/unicode"
 )
+
+var toker = unicode.Tokenizer{}
+
+func convert(s string) string {
+	res := ""
+	for _, t := range toker.Tokenize(s) {
+		res = res + str.UpcaseInitial(t.String)
+	}
+	if !strings.EqualFold(s, res) {
+		panic(fmt.Sprintf("Expected output string to equal input string except for case, but found: <%s> => <%s>", s, res))
+	}
+	return res
+}
 
 func main() {
 	cmdname := filepath.Base(os.Args[0])
@@ -20,7 +34,7 @@ func main() {
 		fmt.Fprintf(os.Stderr, "       cat <file> | %s\n", cmdname)
 		os.Exit(1)
 	}
-	err := lib.ConvertAndPrintFromArgsOrStdin(str.CapitalizeTokens, os.Args[1:])
+	err := lib.ConvertAndPrintFromArgsOrStdin(convert, os.Args[1:])
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
