@@ -2,12 +2,13 @@ package main
 
 import (
 	"fmt"
-	"github.com/HannaLindgren/go-utils/scripts/lib"
 	"log"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
+
+	"github.com/HannaLindgren/go-utils/scripts/lib"
 )
 
 var char string
@@ -39,8 +40,8 @@ func main() {
 		os.Exit(1)
 	}
 	char = os.Args[1]
-	if strings.HasPrefix(strings.ToLower(char), "\\u") {
-		char = strings.Replace(strings.ToLower(char), "\\u", "", -1)
+	if strings.HasPrefix(strings.ToLower(char), `\u`) {
+		char = strings.Replace(strings.ToLower(char), `\u`, "", -1)
 		char, err = code2char(char)
 		if err != nil {
 			log.Fatalf("%v", err)

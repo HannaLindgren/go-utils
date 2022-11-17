@@ -10,7 +10,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/HannaLindgren/go-utils/scripts/lib"
+	"github.com/HannaLindgren/go-utils/io"
 )
 
 func readFromFilesOrStdin(files []string) (map[string]int64, int, error) {
@@ -18,7 +18,7 @@ func readFromFilesOrStdin(files []string) (map[string]int64, int, error) {
 	tot := 0
 	if len(files) > 0 {
 		for _, f := range files {
-			r, fh, err := lib.GetFileReader(f)
+			r, fh, err := io.GetFileReader(f)
 			defer fh.Close()
 			if err != nil {
 				return freq, 0, err

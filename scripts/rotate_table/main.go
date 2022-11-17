@@ -3,11 +3,12 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"github.com/HannaLindgren/go-utils/scripts/lib"
 	"log"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/HannaLindgren/go-utils/io"
 )
 
 var fieldSep = "\t"
@@ -19,7 +20,7 @@ func main() {
 		os.Exit(1)
 	}
 	f := os.Args[1]
-	r, fh, err := lib.GetFileReader(f)
+	r, fh, err := io.GetFileReader(f)
 	defer fh.Close()
 	if err != nil {
 		log.Fatalf("%v", err)

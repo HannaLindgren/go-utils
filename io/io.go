@@ -2,6 +2,9 @@ package io
 
 import (
 	"bufio"
+	"compress/gzip"
+	"fmt"
+	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -34,4 +37,30 @@ func ReadStdinToString() (string, error) {
 		return "", err
 	}
 	return string(b), nil
+}
+
+// IsFile returns true if the given file exists (as a file or as a directory)
+func IsFile(fName string) bool {
+	if _, err := os.Stat(fName); os.IsNotExist(err) {
+		return false
+	}
+	return true
+}
+
+// GetFileReader reads an input file, gzipped or plain text, and returns an io.Reader for line scanning, along with the file handle, that needs to be closed after reading.
+func GetFileReader(fName string) (io.Reader, *os.File, error) {
+	fh, err := os.Open(filepath.Clean(fName))
+	//defer fh.Close()
+	if err != nil {
+		return nil, fh, fmt.Errorf("couldn't open file %s for reading : %v", fName, err)
+	}
+
+	if strings.HasSuffix(fName, ".gz") {
+		gz, err := gzip.NewReader(fh)
+		if err != nil {
+			return nil, fh, fmt.Errorf("couldn't to open gz reader : %v", err)
+		}
+		return io.Reader(gz), fh, nil
+	}
+	return io.Reader(fh), fh, nil
 }

@@ -2,12 +2,13 @@ package main
 
 import (
 	"fmt"
-	"github.com/HannaLindgren/go-utils/scripts/lib"
 	"log"
 	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
+
+	"github.com/HannaLindgren/go-utils/scripts/lib"
 )
 
 var wSplitRe = regexp.MustCompile("[ ,()/-]")
@@ -31,7 +32,7 @@ func main() {
 		fmt.Fprintf(os.Stderr, "       cat <file> | %s\n", cmdname)
 		os.Exit(1)
 	}
-	err := lib.ConvertAndPrintFromFileArgsOrStdin(process)
+	err := lib.ConvertAndPrintFromArgsOrStdin(process, os.Args[1:])
 	if err != nil {
 		log.Fatalf("%v", err)
 	}

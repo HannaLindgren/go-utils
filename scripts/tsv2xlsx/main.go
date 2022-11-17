@@ -10,7 +10,7 @@ import (
 
 	"github.com/360EntSecGroup-Skylar/excelize"
 
-	"github.com/HannaLindgren/go-utils/scripts/lib"
+	"github.com/HannaLindgren/go-utils/io"
 )
 
 const fieldSep = "\t"
@@ -54,7 +54,7 @@ func main() {
 		baseName := strings.TrimSuffix(tsvFile, filepath.Ext(tsvFile))
 		xlsxFile := fmt.Sprintf("%s.xlsx", baseName)
 
-		content, err := lib.ReadFileToString(tsvFile)
+		content, err := io.ReadFileToString(tsvFile)
 		if err != nil {
 			log.Fatalf("Failed to read file %s: %v", tsvFile, err)
 		}

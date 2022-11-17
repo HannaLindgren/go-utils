@@ -7,24 +7,14 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/HannaLindgren/go-utils/scripts/lib"
+	"github.com/HannaLindgren/go-utils/io"
+	"github.com/HannaLindgren/go-utils/unicode"
 )
-
-func codeFor(r rune) string {
-	uc := fmt.Sprintf("%U", r)
-	return fmt.Sprintf("\\u%s", uc[2:])
-}
-
-func processRune(r rune) string {
-	return codeFor(r)
-}
-
-const newline rune = '\n'
 
 func process(s string) {
 	for _, r := range s {
-		fmt.Print(processRune(r))
-		if r == newline {
+		fmt.Print(unicode.UnicodeForR(r))
+		if r == unicode.Newline {
 			fmt.Println()
 		}
 	}
@@ -42,8 +32,8 @@ func main() {
 	}
 	if len(os.Args[1:]) > 0 {
 		for _, arg := range os.Args[1:] {
-			if lib.IsFile(arg) {
-				text, err := lib.ReadFileToString(arg)
+			if io.IsFile(arg) {
+				text, err := io.ReadFileToString(arg)
 				if err != nil {
 					log.Fatalf("%v", err)
 				}
@@ -54,7 +44,7 @@ func main() {
 			}
 		}
 	} else {
-		text, err := lib.ReadStdinToString()
+		text, err := io.ReadStdinToString()
 		if err != nil {
 			log.Fatalf("%v", err)
 		}

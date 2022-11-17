@@ -1,57 +1,65 @@
-package strings
+package unicode
 
 import (
 	"fmt"
 	//"golang.org/x/text/transform"
-	"golang.org/x/text/unicode/norm"
-	"golang.org/x/text/unicode/runenames"
 	"log"
 	"regexp"
 	"strconv"
 	"strings"
 	"unicode"
+
+	"golang.org/x/text/unicode/norm"
+	"golang.org/x/text/unicode/runenames"
 )
 
 func NFKC(s string) string {
+	//norm, _, _ := transform.String(norm.NFKC, s)
 	return string(norm.NFKC.Bytes([]byte(s)))
 }
 
 func NFKD(s string) string {
+	//norm, _, _ := transform.String(norm.NFKD, s)
+	// return norm
 	return string(norm.NFKD.Bytes([]byte(s)))
 }
 
 func NFC(s string) string {
+	//norm, _, _ := transform.String(norm.NFC, s)
+	// return norm
 	return string(norm.NFC.Bytes([]byte(s)))
 }
 
 func NFD(s string) string {
+	//norm, _, _ := transform.String(norm.NFD, s)
+	// return norm
 	return string(norm.NFD.Bytes([]byte(s)))
 }
 
 // UnicodeForR Returns unicode for the input rule
 func UnicodeForR(r rune) string {
 	uc := fmt.Sprintf("%U", r)
-	return fmt.Sprintf("\\u%s", uc[2:])
+	return fmt.Sprintf(`\u%s`, uc[2:])
 }
 
-const newline rune = '\n'
+const Newline rune = '\n'
 
 // UnicodeFor Returns a list of unicodes for each input rune
 func UnicodeFor(s string) []string {
 	res := []string{}
 	for _, r := range s {
 		res = append(res, UnicodeForR(r))
-		if r == newline {
-			fmt.Println()
-		}
+		// if r == Newline {
+		// 	fmt.Println()
+		// }
 	}
 	return res
 }
 
 var ucNumberRe = regexp.MustCompile(`^(?:\\u|[uU][+])([a-fA-F0-9]{4})$`)
 
-var hardwiredNames = map[rune]string{
-	newline: "NEWLINE",
+var specialChars = map[rune]string{
+	Newline: "NEWLINE",
 	'	':     "TAB",
 }
 
@@ -71,10 +79,7 @@ func ucNumber2String(s string) string {
 
 // UnicodeInfo holds a set of unicode-related information for a rune
 type UnicodeInfo struct {
-	// Rune is the input rune
-	Rune rune
-
-	// A string representation of the input rune ('NEWLINE' for newline, 'TAB' for tab, etc)
+	// A string representation of the input rune (for special newline and tab, the string representation is empty in this implementation)
 	String string
 
 	// The unicode number
@@ -89,17 +94,12 @@ type UnicodeInfo struct {
 
 // UnicodeProcessor
 type UnicodeProcessor struct {
-	nfc                       bool
-	nfd                       bool
-	convertFromUnicodeNumbers bool
+	NFC                       bool
+	NFD                       bool
+	ConvertFromUnicodeNumbers bool
 }
 
-func (up *UnicodeProcessor) inhibitSpecialChar(r rune) bool {
-	_, ok := hardwiredNames[r]
-	return ok
-}
-
-func (up *UnicodeProcessor) blockFor(r rune) string {
+func BlockFor(r rune) string {
 	for s, t := range unicode.Scripts {
 		if unicode.In(r, t) {
 			return s
@@ -108,17 +108,17 @@ func (up *UnicodeProcessor) blockFor(r rune) string {
 	return "<UNDEF>"
 }
 
-func (up *UnicodeProcessor) nameFor(r rune) string {
-	if name, ok := hardwiredNames[r]; ok {
+func NameFor(r rune) string {
+	if name, ok := specialChars[r]; ok {
 		return name
 	}
 	return runenames.Name(r)
 }
 
-func (up *UnicodeProcessor) normalize(s string) string {
-	if up.nfc {
+func (up *UnicodeProcessor) Normalize(s string) string {
+	if up.NFC {
 		return NFC(s)
-	} else if up.nfd {
+	} else if up.NFD {
 		return NFD(s)
 	}
 	return s
@@ -126,17 +126,16 @@ func (up *UnicodeProcessor) normalize(s string) string {
 
 // UnicodeInfoR Returns tab-separated unicode information for each input rune
 func (up *UnicodeProcessor) UnicodeInfoR(r rune) UnicodeInfo {
-	name := up.nameFor(r)
+	name := NameFor(r)
 	uc := UnicodeForR(r)
-	block := up.blockFor(r)
-	s := string(r)
-	if up.inhibitSpecialChar(r) {
-		s = ""
+	block := BlockFor(r)
+	char := string(r)
+	if _, inhibitChar := specialChars[r]; inhibitChar {
+		char = ""
 	}
 	//return fmt.Sprintf("%s\t%s\t%s\t%s\n", thisS, uc, name, block)
 	return UnicodeInfo{
-		Rune:      r,
-		String:    s,
+		String:    char,
 		Unicode:   uc,
 		CharName:  name,
 		CodeBlock: block,
@@ -147,7 +146,7 @@ func (up *UnicodeProcessor) UnicodeInfoR(r rune) UnicodeInfo {
 func (up *UnicodeProcessor) UnicodeInfo(s string) []UnicodeInfo {
 	res := []UnicodeInfo{}
 	sx := s
-	if up.convertFromUnicodeNumbers {
+	if up.ConvertFromUnicodeNumbers {
 		tmp := []string{}
 		for _, chunk := range strings.Split(sx, " ") {
 			if isUcNumber(chunk) {
@@ -158,7 +157,7 @@ func (up *UnicodeProcessor) UnicodeInfo(s string) []UnicodeInfo {
 		}
 		sx = strings.Join(tmp, " ")
 	}
-	for _, r := range up.normalize(sx) {
+	for _, r := range up.Normalize(sx) {
 		res = append(res, up.UnicodeInfoR(r))
 	}
 	return res

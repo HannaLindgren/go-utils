@@ -4,12 +4,13 @@ import (
 	"bufio"
 	"flag"
 	"fmt"
-	"github.com/HannaLindgren/go-utils/scripts/lib"
 	"log"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
+
+	"github.com/HannaLindgren/go-utils/io"
 )
 
 var ignoreCase *bool // = false
@@ -35,7 +36,7 @@ func loadFieldIndices(fields string) {
 }
 
 func loadContentFile(fname string) {
-	r, fh, err := lib.GetFileReader(fname)
+	r, fh, err := io.GetFileReader(fname)
 	defer fh.Close()
 	if err != nil {
 		log.Fatalf("Couldn't read content file : %v", err)
@@ -60,7 +61,7 @@ func loadContentFile(fname string) {
 }
 
 func readFieldFile(fname string) {
-	r, fh, err := lib.GetFileReader(fname)
+	r, fh, err := io.GetFileReader(fname)
 	defer fh.Close()
 	if err != nil {
 		log.Fatalf("Couldn't read field file : %v", err)

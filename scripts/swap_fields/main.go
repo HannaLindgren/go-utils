@@ -3,12 +3,13 @@ package main
 import (
 	//"bufio"
 	"fmt"
-	"github.com/HannaLindgren/go-utils/scripts/lib"
 	"log"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
+
+	"github.com/HannaLindgren/go-utils/scripts/lib"
 )
 
 var fieldSep = "\t"
@@ -52,22 +53,4 @@ func main() {
 		log.Fatalf("%v", err)
 	}
 
-	// for i := 2; i < len(os.Args); i++ {
-	// 	f := os.Args[i]
-	// 	r, fh, err := lib.GetFileReader(f)
-	// 	defer fh.Close()
-	// 	if err != nil {
-	// 		log.Fatalf("%v", err)
-	// 	}
-	// 	scan := bufio.NewScanner(r)
-	// 	for scan.Scan() {
-	// 		s := scan.Text()
-	// 		fs := strings.Split(s, fieldSep)
-	// 		output := []string{}
-	// 		for _, i := range is {
-	// 			output = append(output, fs[i])
-	// 		}
-	// 		fmt.Println(strings.Join(output, fieldSep))
-	// 	}
-	// }
 }

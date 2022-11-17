@@ -2,17 +2,14 @@ package main
 
 import (
 	"fmt"
-	"github.com/HannaLindgren/go-utils/scripts/lib"
-	"golang.org/x/text/unicode/norm"
 	"log"
 	"os"
 	"path/filepath"
 	"strings"
-)
 
-func process(s string) string {
-	return string(norm.NFD.Bytes([]byte(s)))
-}
+	"github.com/HannaLindgren/go-utils/scripts/lib"
+	"github.com/HannaLindgren/go-utils/unicode"
+)
 
 func main() {
 	cmdname := filepath.Base(os.Args[0])
@@ -24,7 +21,7 @@ func main() {
 		fmt.Fprintf(os.Stderr, "       cat <file> | %s\n", cmdname)
 		os.Exit(1)
 	}
-	err := lib.ConvertAndPrintFromFileArgsOrStdin(process)
+	err := lib.ConvertAndPrintFromArgsOrStdin(unicode.NFD, os.Args[1:])
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
