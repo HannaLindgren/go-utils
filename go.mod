@@ -5,5 +5,5 @@ go 1.16
 require (
 	github.com/360EntSecGroup-Skylar/excelize v1.4.1
 	github.com/gorilla/mux v1.7.3
-	golang.org/x/text v0.3.2
+	golang.org/x/text v0.5.0
 )
