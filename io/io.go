@@ -11,6 +11,10 @@ import (
 	"strings"
 )
 
+func RemoveFileExtension(fName string) string {
+	return fName[:len(fName)-len(filepath.Ext(fName))]
+}
+
 // ReadFileToLines Read a file into a list of lines
 func ReadFileToLines(fName string) ([]string, error) {
 	s, err := ReadFileToString(fName)
