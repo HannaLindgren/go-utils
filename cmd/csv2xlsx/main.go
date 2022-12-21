@@ -94,7 +94,7 @@ func setRowHeight(sheet *excelize.File, row int, height float64) error {
 
 func hideColumns(sheet *excelize.File, cols []int) error {
 	for _, i := range cols {
-		err := sheet.SetColVisible(*sheetName, getColLetter(i), false)
+		err := sheet.SetColVisible(*sheetName, getColLetter(i-1), false)
 		if err != nil {
 			return err
 		}
@@ -130,7 +130,7 @@ func convertFile(txtFile string) (string, int, error) {
 			cellID := getCellID(li, ci)
 			sheet.SetCellValue(*sheetName, cellID, f)
 
-			centering := centerCols[ci]
+			centering := centerCols[ci+1]
 			bold := (li == 0) && *lockHeader
 			err := setCellStyle(sheet, centering, bold, cellID, len(lines))
 			if err != nil {
@@ -192,8 +192,8 @@ func main() {
 	fieldSepFlag := flag.String("sep", "<tab>", "field `separator`")
 	lockHeader = flag.Bool("header", false, "lock header")
 	sheetName = flag.String("sheet", "Sheet1", "sheet `name`")
-	hideColsFlag := flag.String("hide", "", "hide columns")
-	centerColsFlag := flag.String("center", "", "center columns")
+	hideColsFlag := flag.String("hide", "", "hide columns (index starts at 1)")
+	centerColsFlag := flag.String("center", "", "center columns (index starts at 1)")
 	fontFamily = flag.String("ff", "Arial", "font family")
 	fontSize = flag.Float64("fs", 9, "font size")
 	colWidth = flag.Float64("cw", 0, "column width")
