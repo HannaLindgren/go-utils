@@ -6,7 +6,7 @@ require (
 	github.com/360EntSecGroup-Skylar/excelize v1.4.1
 	github.com/gorilla/mux v1.8.0
 	github.com/xuri/excelize/v2 v2.6.1
-	golang.org/x/text v0.5.0
+	golang.org/x/text v0.6.0
 )
 
 require (
