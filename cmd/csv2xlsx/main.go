@@ -147,7 +147,18 @@ func convertFile(txtFile string) (string, int, error) {
 	}
 	// freeze first row
 	if *lockHeader {
-		sheet.SetPanes(*sheetName, `{"freeze":true,"split":false,"x_split":0,"y_split":1,"top_left_cell":"A2","active_pane":"bottomLeft"}`)
+		// 2.6 code
+		// sheet.SetPanes(*sheetName, `{"freeze":true,"split":false,"x_split":0,"y_split":1,"top_left_cell":"A2","active_pane":"bottomLeft"}`)
+		// 2.7 code
+		var p = excelize.Panes{
+			Freeze:      true,
+			Split:       false,
+			XSplit:      0,
+			YSplit:      1,
+			TopLeftCell: "A2",
+			ActivePane:  "bottomLeft",
+		}
+		sheet.SetPanes(*sheetName, &p)
 	}
 
 	// hide
