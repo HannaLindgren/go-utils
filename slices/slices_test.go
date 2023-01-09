@@ -1,7 +1,6 @@
 package slices
 
 import (
-	//"fmt"
 	"reflect"
 	"testing"
 )
@@ -18,6 +17,9 @@ func TestValidInsert(t *testing.T) {
 	if !reflect.DeepEqual(result, expect) {
 		t.Errorf(fsExpGot, expect, result)
 	}
+	if !reflect.DeepEqual(input, []string{"a", "b", "d"}) {
+		t.Errorf(fsExpGot, expect, result)
+	}
 
 	//  legal index
 	input = []string{"a", "b", "d"}
@@ -26,12 +28,18 @@ func TestValidInsert(t *testing.T) {
 	if !reflect.DeepEqual(result, expect) {
 		t.Errorf(fsExpGot, expect, result)
 	}
+	if !reflect.DeepEqual(input, []string{"a", "b", "d"}) {
+		t.Errorf(fsExpGot, expect, result)
+	}
 
 	//  max legal index
 	input = []string{"a", "b", "d"}
 	expect = []string{"a", "b", "d", "c"}
 	result = Insert(input, 3, "c")
 	if !reflect.DeepEqual(result, expect) {
+		t.Errorf(fsExpGot, expect, result)
+	}
+	if !reflect.DeepEqual(input, []string{"a", "b", "d"}) {
 		t.Errorf(fsExpGot, expect, result)
 	}
 
