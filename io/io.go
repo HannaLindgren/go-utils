@@ -13,8 +13,8 @@ import (
 
 func DetachFileExtension(fName string) (string, string) {
 	ext := filepath.Ext(fName)
-	name := strings.TrimSuffix(fName[:len(fName)-len(ext)], ".")
-	return name, ext
+	name := fName[:len(fName)-len(ext)]
+	return name, strings.TrimPrefix(ext, ".")
 }
 
 func RemoveFileExtension(fName string) string {
