@@ -11,6 +11,21 @@ import (
 	"strings"
 )
 
+func IsDirectory(path string) (bool, error) {
+	file, err := os.Open(path)
+	if err != nil {
+		return false, err
+	}
+
+	fileInfo, err := file.Stat()
+	if err != nil {
+		file.Close()
+		return false, err
+	}
+	file.Close()
+	return fileInfo.IsDir(), nil
+}
+
 func DetachFileExtension(fName string) (string, string) {
 	ext := filepath.Ext(fName)
 	name := fName[:len(fName)-len(ext)]
