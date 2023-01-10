@@ -45,7 +45,7 @@ func initAfterFlags(fieldSepFlag, hideColsFlag, centerColsFlag *string) {
 
 func getColLetter(ci int) string {
 	if ci >= len(cols) {
-		panic(fmt.Sprintf("Column index %v is out of range", ci))
+		panic(fmt.Sprintf("column index out of range [%v]; max no. columns is %v", ci, len(cols)))
 	}
 	return fmt.Sprintf("%s", cols[ci])
 }
