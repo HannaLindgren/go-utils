@@ -11,8 +11,15 @@ import (
 	"strings"
 )
 
+func DetachFileExtension(fName string) (string, string) {
+	ext := filepath.Ext(fName)
+	name := strings.TrimSuffix(fName[:len(fName)-len(ext)], ".")
+	return name, ext
+}
+
 func RemoveFileExtension(fName string) string {
-	return fName[:len(fName)-len(filepath.Ext(fName))]
+	res, _ := DetachFileExtension(fName)
+	return res
 }
 
 // ReadFileToLines Read a file into a list of lines
