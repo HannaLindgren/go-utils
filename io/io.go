@@ -65,6 +65,15 @@ func ReadStdinToString() (string, error) {
 	return string(b), nil
 }
 
+// ReadStdinToLines Read stdin into a list of lines
+func ReadStdinToLines() ([]string, error) {
+	s, err := ReadStdinToString()
+	if err != nil {
+		return []string{}, err
+	}
+	return strings.Split(strings.TrimSuffix(s, "\n"), "\n"), nil
+}
+
 // IsFile returns true if the given file exists (as a file or as a directory)
 func IsFile(fName string) bool {
 	if _, err := os.Stat(fName); os.IsNotExist(err) {
