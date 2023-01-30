@@ -55,14 +55,14 @@ func ReadFileToString(fName string) (string, error) {
 	return string(b), nil
 }
 
-// ReadStdinToString Read stdin into a string using ioutil.ReadFile
+// ReadStdinToString Read stdin into a string using ioutil.ReadFile (removing final newline, if any)
 func ReadStdinToString() (string, error) {
 	stdin := bufio.NewReader(os.Stdin)
 	b, err := ioutil.ReadAll(stdin)
 	if err != nil {
 		return "", err
 	}
-	return string(b), nil
+	return strings.TrimSuffix(string(b), "\n"), nil
 }
 
 // ReadStdinToLines Read stdin into a list of lines
