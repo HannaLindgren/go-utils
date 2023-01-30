@@ -46,7 +46,7 @@ func ReadFileToLines(fName string) ([]string, error) {
 	return strings.Split(strings.TrimSuffix(s, "\n"), "\n"), nil
 }
 
-// ReadFileToString Read a file into a string using ioutil.ReadFile
+// ReadFileToString Read a file into a string using ioutil.ReadFile (keeping final newline, if any)
 func ReadFileToString(fName string) (string, error) {
 	b, err := ioutil.ReadFile(filepath.Clean(fName))
 	if err != nil {
