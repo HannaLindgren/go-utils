@@ -23,11 +23,26 @@ func readFile(f string) ([][]string, error) {
 	}
 
 	sheets := x.GetSheetList()
-	if len(sheets) != 1 {
-		return res, fmt.Errorf("expected one sheet for %s, found: %v", f, sheets)
+	var selectedSheet string
+	if *sheetName == "" {
+		if len(sheets) != 1 {
+			return res, fmt.Errorf("multiple sheets found in %s, use -sheet flag to select which one to export: %v", f, sheets)
+		}
+		selectedSheet = sheets[0]
+	} else {
+		for _, sheet := range sheets {
+			if sheet == *sheetName {
+				selectedSheet = sheet
+				break
+			}
+		}
+		if selectedSheet == "" {
+			return res, fmt.Errorf("invalid sheet name %s, found: %v", *sheetName, sheets)
+		}
 	}
+	//fmt.Fprintf(os.Stderr, "Using sheet %s\n", selectedSheet)
 
-	rows, err := x.GetRows(sheets[0])
+	rows, err := x.GetRows(selectedSheet)
 	if err != nil {
 		return res, fmt.Errorf("failed to read rows : %v", err)
 	}
@@ -86,11 +101,13 @@ const cmdname = "xlsx2csv"
 
 // flags
 var fieldSep string
+var sheetName *string
 
 func main() {
 
 	fieldSepFlag := flag.String("sep", "<tab>", "field `separator`")
-	ext := flag.String("ext", "tsv", "output `extension`")
+	sheetName = flag.String("sheet", "", "Sheet `name` to export")
+	ext := flag.String("ext", "csv", "output `extension`")
 
 	var printUsage = func() {
 		fmt.Fprintln(os.Stderr, "Convert xlsx file sto tsv/csv")
@@ -122,7 +139,11 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Printf("%s => %s (%v lines)\n", f, outFile, n)
+		if *sheetName != "" {
+			fmt.Printf("%s [Sheet:%s] => %s (%v lines)\n", f, *sheetName, outFile, n)
+		} else {
+			fmt.Printf("%s => %s (%v lines)\n", f, outFile, n)
+		}
 	}
 
 }
