@@ -1,6 +1,3 @@
-# github.com/360EntSecGroup-Skylar/excelize v1.4.1
-## explicit
-github.com/360EntSecGroup-Skylar/excelize
 # github.com/gorilla/mux v1.8.0
 ## explicit; go 1.12
 github.com/gorilla/mux
@@ -26,6 +23,10 @@ github.com/xuri/nfp
 ## explicit; go 1.17
 golang.org/x/crypto/md4
 golang.org/x/crypto/ripemd160
+# golang.org/x/exp v0.0.0-20230202163644-54bba9f4231b
+## explicit; go 1.18
+golang.org/x/exp/constraints
+golang.org/x/exp/slices
 # golang.org/x/net v0.5.0
 ## explicit; go 1.17
 golang.org/x/net/html
