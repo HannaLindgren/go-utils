@@ -69,7 +69,7 @@ func main() {
 
 	caseSens = flag.Bool("case", false, "Case sensitive column headers")
 	fieldSepFlag := flag.String("sep", "<tab>", "Field `separator`")
-	skipHeader = flag.Bool("skip", false, "Do not include header in output")
+	skipHeader = flag.Bool("noheader", false, "Do not include header in output")
 	fieldSep = *fieldSepFlag
 	if fieldSep == "<tab>" {
 		fieldSep = "\t"
@@ -78,19 +78,19 @@ func main() {
 	var printUsage = func() {
 		fmt.Fprintln(os.Stderr, "Print selected columns based on file header")
 		fmt.Fprintln(os.Stderr)
-		fmt.Fprintf(os.Stderr, "Usage: %s <requested columns> <files>*\n", cmdname)
+		fmt.Fprintf(os.Stderr, "Usage: %s <requested columns> <files>\n", cmdname)
 		fmt.Fprintf(os.Stderr, "       OR\n")
 		fmt.Fprintf(os.Stderr, "cat <files> | %s <requested columns>\n", cmdname)
 		fmt.Fprintln(os.Stderr, "\nOptional flags:")
 		flag.PrintDefaults()
 		fmt.Fprintln(os.Stderr)
 		fmt.Fprintf(os.Stderr, "Example usage:\n")
-		fmt.Fprintf(os.Stderr, "%s orig,NormName /tmp/prio4.txt\n", cmdname)
+		fmt.Fprintf(os.Stderr, "%s orth,country /tmp/sourcefile.txt\n", cmdname)
 	}
 
 	flag.Parse()
 
-	if flag.NArg() < 2 {
+	if flag.NArg() != 1 && flag.NArg() != 2 {
 		printUsage()
 		os.Exit(0)
 	}
