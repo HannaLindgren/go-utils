@@ -74,11 +74,7 @@ func main() {
 
 	caseSens = flag.Bool("c", false, "Case sensitive column headers")
 	fieldSepFlag := flag.String("s", "<tab>", "Field `separator`")
-	skipHeader = flag.Bool("H", false, "Do not include header in output")
-	fieldSep = *fieldSepFlag
-	if fieldSep == "<tab>" {
-		fieldSep = "\t"
-	}
+	skipHeader = flag.Bool("H", false, "Skip output header")
 
 	var printUsage = func() {
 		fmt.Fprintln(os.Stderr, "Print selected columns based on file header")
@@ -98,6 +94,11 @@ func main() {
 	if flag.NArg() != 1 && flag.NArg() != 2 {
 		printUsage()
 		os.Exit(0)
+	}
+
+	fieldSep = *fieldSepFlag
+	if fieldSep == "<tab>" {
+		fieldSep = "\t"
 	}
 
 	var requestedFields = map[string]field{}
