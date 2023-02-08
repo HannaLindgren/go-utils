@@ -7,6 +7,7 @@ import (
 	"regexp"
 	"strings"
 
+	"golang.org/x/exp/maps"
 	"golang.org/x/exp/slices"
 
 	hio "github.com/HannaLindgren/go-utils/io"
@@ -23,6 +24,8 @@ type reqField struct {
 	normName string
 	name     string
 }
+
+var printedHeaders = map[string]bool{}
 
 func process(requestedFields []reqField, lines []string) error {
 	if len(lines) == 0 {
@@ -77,7 +80,17 @@ func process(requestedFields []reqField, lines []string) error {
 				}
 			}
 		}
-		fmt.Println(strings.Join(outFS, "\t"))
+		outS := strings.Join(outFS, "\t")
+		if li == 0 {
+			if printedHeaders[outS] {
+				continue
+			}
+			printedHeaders[outS] = true
+			if len(printedHeaders) > 1 {
+				return fmt.Errorf("Mismatching output headers: %s", strings.Join(maps.Keys(printedHeaders), "\n"))
+			}
+		}
+		fmt.Println(outS)
 	}
 	return nil
 }
@@ -116,7 +129,7 @@ func main() {
 
 	flag.Parse()
 
-	if flag.NArg() != 1 && flag.NArg() != 2 {
+	if flag.NArg() < 2 {
 		printUsage()
 		os.Exit(0)
 	}
@@ -155,6 +168,9 @@ func main() {
 
 	if flag.NArg() > 1 {
 		for _, f := range flag.Args()[1:] {
+			if *verb {
+				fmt.Fprintf(os.Stderr, "Reading file: %s\n", f)
+			}
 			lines, err := hio.ReadFileToLines(f)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "[error] Failed to read from file %s: %v\n", f, err)
