@@ -90,6 +90,7 @@ func (r *Reader) validateHeader(header line, v interface{}) error {
 			r.headerDef[i] = true
 		}
 	} else {
+		missingFields := []string{}
 		hMap := make(map[string]int)
 		for i, s := range header {
 			if !r.CaseSensHeader {
@@ -107,9 +108,12 @@ func (r *Reader) validateHeader(header line, v interface{}) error {
 				r.headerDef[hIndex] = true
 			} else {
 				if !r.acceptMissingFields[ss] {
-					return fmt.Errorf("Header missing struct field %s; found: %s", ss, strings.Join(header, " "))
+					missingFields = append(missingFields, ss)
 				}
 			}
+		}
+		if len(missingFields) > 0 {
+			return fmt.Errorf("Header missing struct fields %s; found: %s", strings.Join(missingFields, " "), strings.Join(header, " "))
 		}
 	}
 	return nil

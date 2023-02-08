@@ -27,10 +27,6 @@ GBR	eng	The Thames	Themsen	4	true	hepp
 BEL	fre	Bruxelles	Bryssel	3	false	`
 	var separator = '	'
 	var reader = NewStringReader(source, separator)
-	if err != nil {
-		t.Errorf("Got error from NewStringReader: %v", err)
-		return
-	}
 	reader.Strict = true
 	var header entry
 	err = reader.ReadHeader(&header)
@@ -70,10 +66,6 @@ GBR	eng	The Thames	Themsen	4	true	hepp
 BEL	fre	Bruxelles	Bryssel	3	false	`
 	var separator = '	'
 	var reader = NewStringReader(source, separator)
-	if err != nil {
-		t.Errorf("Got error from NewStringReader: %v", err)
-		return
-	}
 	reader.Strict = true
 	var header entry
 	err = reader.ReadHeader(&header)
@@ -147,10 +139,6 @@ BEL	fre	Bruxelles	Bryssel	3	false		hardwired_cities`
 	var separator = '	'
 	var reader = NewStringReader(source, separator)
 	reader.CaseSensHeader = false
-	if err != nil {
-		t.Errorf("Got error from NewStringReader: %v", err)
-		return
-	}
 	reader.Strict = false
 	var header entry
 	err = reader.ReadHeader(&header)
@@ -185,10 +173,6 @@ FRA	fre	Paris		3	false`
 	var separator = '	'
 	var reader = NewStringReader(source, separator)
 	reader.CaseSensHeader = false
-	if err != nil {
-		t.Errorf("Got error from NewStringReader: %v", err)
-		return
-	}
 	reader.Strict = false
 	reader.AcceptShortLines()
 	var header entry
@@ -224,10 +208,6 @@ FRA	fre	Paris		3	false`
 	var separator = '	'
 	var reader = NewStringReader(source, separator)
 	reader.CaseSensHeader = true
-	if err != nil {
-		t.Errorf("Got error from NewStringReader: %v", err)
-		return
-	}
 	reader.Strict = false
 	reader.AcceptShortLines()
 	reader.AcceptMissingFields("Comment")
