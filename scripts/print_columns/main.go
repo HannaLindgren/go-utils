@@ -12,7 +12,19 @@ import (
 	hio "github.com/HannaLindgren/go-utils/io"
 )
 
-func process(requestedFields map[string]field, lines []string) error {
+type field struct {
+	req      reqField
+	outIndex int
+	inIndex  int
+}
+
+type reqField struct {
+	index    int
+	normName string
+	name     string
+}
+
+func process(requestedFields []reqField, lines []string) error {
 	if len(lines) == 0 {
 		return fmt.Errorf("no input lines")
 	}
@@ -23,19 +35,30 @@ func process(requestedFields map[string]field, lines []string) error {
 	existingFields := strings.Split(header, fieldSep)
 
 	// save printable indices
-	var colsToPrint = make(map[int]int)
+	var colsToPrint = []field{}
 	var nColsToPrint = 0
 	for i, s := range existingFields {
-		if ri, doPrint := requestedFields[s]; doPrint {
-			colsToPrint[i] = ri.index
-			nColsToPrint++
+		for _, rf := range requestedFields {
+			if rf.normName == s {
+				col := field{
+					req:     rf,
+					inIndex: i,
+				}
+				if *preserveOrder {
+					col.outIndex = nColsToPrint
+				} else {
+					col.outIndex = rf.index
+				}
+				colsToPrint = append(colsToPrint, col)
+				nColsToPrint++
+			}
 		}
 	}
 
 	// check for invalid columns in input flag
-	for key, field := range requestedFields {
-		if !slices.Contains(existingFields, key) {
-			return fmt.Errorf("requested field %s does not exist in input data", field.name)
+	for _, rf := range requestedFields {
+		if !slices.Contains(existingFields, rf.normName) {
+			return fmt.Errorf("requested field %s does not exist in input data", rf.name)
 		}
 	}
 
@@ -44,17 +67,13 @@ func process(requestedFields map[string]field, lines []string) error {
 			continue
 		}
 		outFS := []string{}
-		if !*preserveOrder {
-			for len(outFS) < nColsToPrint {
-				outFS = append(outFS, "")
-			}
+		for len(outFS) < nColsToPrint {
+			outFS = append(outFS, "")
 		}
 		for i, f := range strings.Split(l, fieldSep) {
-			if requestedI, doPrint := colsToPrint[i]; doPrint {
-				if *preserveOrder {
-					outFS = append(outFS, f)
-				} else {
-					outFS[requestedI] = f
+			for _, ff := range colsToPrint {
+				if ff.inIndex == i {
+					outFS[ff.outIndex] = f
 				}
 			}
 		}
@@ -71,21 +90,19 @@ var fieldSep string
 
 var columnSplitRE = regexp.MustCompile("[,;: ]+")
 
-type field struct {
-	index int
-	name  string
-}
-
 func main() {
 
 	caseSens = flag.Bool("c", false, "Case sensitive column headers")
 	fieldSepFlag := flag.String("s", "<tab>", "Field `separator`")
 	skipHeader = flag.Bool("H", false, "Skip output header")
-	preserveOrder = flag.Bool("o", false, "Preserve input file's column ordering")
+	preserveFN := "o"
+	preserveOrder = flag.Bool(preserveFN, false, "Preserve input file's column ordering")
+	repeatFN := "r"
+	allowRepeatedColumns := flag.Bool(repeatFN, false, "Allow repeated output fields")
 	verb := flag.Bool("v", false, "Verbose output")
 
 	var printUsage = func() {
-		fmt.Fprintln(os.Stderr, "Print selected columns based on file header")
+		fmt.Fprintln(os.Stderr, "Script to selected columns based on file header")
 		fmt.Fprintln(os.Stderr)
 		fmt.Fprintf(os.Stderr, "Usage: %s <requested columns> <files>\n", cmdname)
 		fmt.Fprintf(os.Stderr, "       OR\n")
@@ -109,19 +126,26 @@ func main() {
 		fieldSep = "\t"
 	}
 
+	if *preserveOrder && *allowRepeatedColumns {
+		fmt.Fprintf(os.Stderr, "[warning] Flags -%s and -%s makes little sense to use in combination\n", preserveFN, repeatFN)
+	}
+
 	var requestedFieldsString = flag.Args()[0]
-	var requestedFields = map[string]field{}
-	for i, f := range columnSplitRE.Split(requestedFieldsString, -1) {
-		var key = f
+	var requestedFields = []reqField{}
+	var seenRequestedFields = map[string]bool{}
+	for i, name := range columnSplitRE.Split(requestedFieldsString, -1) {
+		var key = name
 		if !*caseSens {
-			key = strings.ToLower(f)
+			key = strings.ToLower(key)
 		}
-		if _, exists := requestedFields[key]; exists {
-			if *verb {
-				fmt.Fprintf(os.Stderr, "Skipping repeated column: %s\n", key)
-			}
+		f := reqField{index: i, normName: key, name: name}
+		if _, repeated := seenRequestedFields[f.normName]; repeated && !*allowRepeatedColumns {
+			fmt.Fprintf(os.Stderr, "[error] Repeated columns in request: %s (use flag -%s to allow repeated columns)\n\n", key, repeatFN)
+			printUsage()
+			os.Exit(1)
 		}
-		requestedFields[key] = field{index: i, name: f}
+		requestedFields = append(requestedFields, f)
+		seenRequestedFields[f.normName] = true
 	}
 
 	if *verb {
@@ -133,24 +157,24 @@ func main() {
 		for _, f := range flag.Args()[1:] {
 			lines, err := hio.ReadFileToLines(f)
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "Failed to read from file %s: %v\n", f, err)
+				fmt.Fprintf(os.Stderr, "[error] Failed to read from file %s: %v\n", f, err)
 				os.Exit(1)
 			}
 			err = process(requestedFields, lines)
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "Failed to process file %s: %v\n", f, err)
+				fmt.Fprintf(os.Stderr, "[error] Failed to process file %s: %v\n", f, err)
 				os.Exit(1)
 			}
 		}
 	} else { // read from stdin
 		lines, err := hio.ReadStdinToLines()
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Failed to read from stdin: %v\n", err)
+			fmt.Fprintf(os.Stderr, "[error] Failed to read from stdin: %v\n", err)
 			os.Exit(1)
 		}
 		err = process(requestedFields, lines)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Failed to process stdin: %v\n", err)
+			fmt.Fprintf(os.Stderr, "[error] Failed to process stdin: %v\n", err)
 			os.Exit(1)
 		}
 	}
