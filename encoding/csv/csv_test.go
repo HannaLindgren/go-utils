@@ -223,10 +223,10 @@ FRA	tmpl3	fre	Paris		`
 			t.Errorf("Got error from Read: %v", err)
 			return
 		}
-		// bts, err := json.Marshal(entry)
-		// if err != nil {
-		// 	t.Errorf("Got error from json.Marshal: %v", err)
-		// }
-		//fmt.Println(string(bts))
+		bts, err := json.Marshal(entry)
+		if err != nil {
+			t.Errorf("Got error from json.Marshal: %v", err)
+		}
+		fmt.Println(string(bts))
 	}
 }

@@ -83,11 +83,11 @@ func (r *Reader) validateHeader(header line, v interface{}) error {
 		for i := 0; i < s.NumField(); i++ {
 			ss := s.Type().Field(i).Name
 			hs := header[i]
-			if r.CaseSensHeader {
-				if ss != hs {
-					return &FieldNameMismatch{ss, hs}
-				}
-			} else if !strings.EqualFold(ss, hs) {
+			if !r.CaseSensHeader {
+				hs = strings.ToLower(hs)
+				ss = strings.ToLower(ss)
+			}
+			if ss != hs {
 				return &FieldNameMismatch{ss, hs}
 			}
 			r.headerStructableFields[hs] = i
@@ -176,31 +176,34 @@ func (r *Reader) Unmarshal(line []string, v interface{}) error {
 	for i := 0; i < struc.NumField(); i++ {
 		f := struc.Field(i)
 		name := struc.Type().Field(i).Name
-		if r.CaseSensHeader {
+		if !r.CaseSensHeader {
 			name = strings.ToLower(name)
 		}
 		colIndex, structableFields := r.headerStructableFields[name]
+		//fmt.Println(line, name, colIndex)
 		if !structableFields {
 			continue
 		}
 		val := line[colIndex]
-		switch f.Type().String() {
-		case "string":
-			f.SetString(val)
-		case "int":
-			ival, err := strconv.ParseInt(val, 10, 0)
-			if err != nil {
-				return err
+		if val != "" {
+			switch f.Type().String() {
+			case "string":
+				f.SetString(val)
+			case "int":
+				ival, err := strconv.ParseInt(val, 10, 0)
+				if err != nil {
+					return err
+				}
+				f.SetInt(ival)
+			case "bool":
+				bval, err := strconv.ParseBool(val)
+				if err != nil {
+					return err
+				}
+				f.SetBool(bval)
+			default:
+				return &UnsupportedType{f.Type().String()}
 			}
-			f.SetInt(ival)
-		case "bool":
-			bval, err := strconv.ParseBool(val)
-			if err != nil {
-				return err
-			}
-			f.SetBool(bval)
-		default:
-			return &UnsupportedType{f.Type().String()}
 		}
 	}
 	return nil
