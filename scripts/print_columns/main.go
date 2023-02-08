@@ -44,12 +44,18 @@ func process(requestedFields map[string]field, lines []string) error {
 			continue
 		}
 		outFS := []string{}
-		for len(outFS) < nColsToPrint {
-			outFS = append(outFS, "")
+		if !*preserveOrder {
+			for len(outFS) < nColsToPrint {
+				outFS = append(outFS, "")
+			}
 		}
 		for i, f := range strings.Split(l, fieldSep) {
-			if outI, doPrint := colsToPrint[i]; doPrint {
-				outFS[outI] = f
+			if requestedI, doPrint := colsToPrint[i]; doPrint {
+				if *preserveOrder {
+					outFS = append(outFS, f)
+				} else {
+					outFS[requestedI] = f
+				}
 			}
 		}
 		fmt.Println(strings.Join(outFS, "\t"))
@@ -60,7 +66,7 @@ func process(requestedFields map[string]field, lines []string) error {
 const cmdname = "print_columns"
 
 // options
-var caseSens, skipHeader *bool
+var caseSens, skipHeader, preserveOrder *bool
 var fieldSep string
 
 var columnSplitRE = regexp.MustCompile("[,;: ]+")
@@ -75,6 +81,8 @@ func main() {
 	caseSens = flag.Bool("c", false, "Case sensitive column headers")
 	fieldSepFlag := flag.String("s", "<tab>", "Field `separator`")
 	skipHeader = flag.Bool("H", false, "Skip output header")
+	preserveOrder = flag.Bool("o", false, "Preserve input file's column ordering")
+	verb := flag.Bool("v", false, "Verbose output")
 
 	var printUsage = func() {
 		fmt.Fprintln(os.Stderr, "Print selected columns based on file header")
@@ -101,16 +109,25 @@ func main() {
 		fieldSep = "\t"
 	}
 
+	var requestedFieldsString = flag.Args()[0]
 	var requestedFields = map[string]field{}
-	for i, f := range columnSplitRE.Split(flag.Args()[0], -1) {
+	for i, f := range columnSplitRE.Split(requestedFieldsString, -1) {
 		var key = f
 		if !*caseSens {
 			key = strings.ToLower(f)
 		}
+		if _, exists := requestedFields[key]; exists {
+			if *verb {
+				fmt.Fprintf(os.Stderr, "Skipping repeated column: %s\n", key)
+			}
+		}
 		requestedFields[key] = field{index: i, name: f}
 	}
 
-	//fmt.Fprintf(os.Stderr, "%#v\n", requestedFields)
+	if *verb {
+		fmt.Fprintf(os.Stderr, "Separator: %#v\n", *fieldSepFlag)
+		fmt.Fprintf(os.Stderr, "Requested fields: %s\n", requestedFieldsString)
+	}
 
 	if flag.NArg() > 1 {
 		for _, f := range flag.Args()[1:] {
