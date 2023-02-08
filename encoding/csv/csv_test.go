@@ -96,16 +96,12 @@ BEL	fre	Bruxelles	Bryssel	3	false	`
 
 func TestCsvReaderNonStrictCaseSens(t *testing.T) {
 	var err error
-	var source = `Country	OrigLang	Orth	Exonym	Priority	Checked	Comment	Template
-GBR	eng	The Thames	Themsen	4	true	hepp	auto_case
-BEL	fre	Bruxelles	Bryssel	3	false		hardwired_cities`
+	var source = `Country	OrigLang	Orth	Exonym	Template	Priority	Checked	Comment
+GBR	eng	The Thames	Themsen	tmpl	4	true	hepp
+BEL	fre	Bruxelles	Bryssel	tmpl	3	false	`
 	var separator = '	'
 	var reader = NewStringReader(source, separator)
 	reader.CaseSensHeader = true
-	if err != nil {
-		t.Errorf("Got error from NewStringReader: %v", err)
-		return
-	}
 	reader.Strict = false
 	var header entry
 	err = reader.ReadHeader(&header)
@@ -199,54 +195,18 @@ FRA	fre	Paris		3	false`
 	}
 }
 
-func TestCsvReaderWithMissingFields(t *testing.T) {
-	var err error
-	var source = `Country	OrigLang	Orth	Exonym	Priority	Checked
-GBR	eng	The Thames	Themsen	4	true
-BEL	fre	Bruxelles	Bryssel	3	false
-FRA	fre	Paris		3	false`
-	var separator = '	'
-	var reader = NewStringReader(source, separator)
-	reader.CaseSensHeader = true
-	reader.Strict = false
-	reader.AcceptShortLines()
-	reader.AcceptMissingFields("Comment")
-	var header entry
-	err = reader.ReadHeader(&header)
-	if err != nil {
-		t.Errorf("Got error from ReadHeader: %v", err)
-		return
-	}
-	for {
-		var entry entry
-		err := reader.Read(&entry)
-		if err == io.EOF {
-			break
-		}
-		if err != nil {
-			t.Errorf("Got error from Read: %v", err)
-			return
-		}
-		// bts, err := json.Marshal(entry)
-		// if err != nil {
-		// 	t.Errorf("Got error from json.Marshal: %v", err)
-		// }
-		//fmt.Println(string(bts))
-	}
-}
-
 func TestCsvReaderWithRequiredFields(t *testing.T) {
 	var err error
-	var source = `Country	OrigLang	Orth	Exonym	Priority	Checked
-GBR	eng	The Thames	Themsen	4	true
-BEL	fre	Bruxelles	Bryssel	3	false
-FRA	fre	Paris		3	false`
+	var source = `Country	Template	OrigLang	Orth	Exonym	Checked
+GBR	tmpl2	eng	The Thames	Themsen	true
+BEL	tmpl1	fre	Bruxelles	Bryssel	false
+FRA	tmpl3	fre	Paris		`
 	var separator = '	'
 	var reader = NewStringReader(source, separator)
 	reader.CaseSensHeader = true
 	reader.Strict = false
-	reader.AcceptShortLines()
-	reader.RequiredFields("Orig", "OrigLang")
+	//reader.AcceptShortLines()
+	reader.RequiredFields("Orth", "OrigLang")
 	var header entry
 	err = reader.ReadHeader(&header)
 	if err != nil {

@@ -42,13 +42,14 @@ type Reader struct {
 	inner          *csv.Reader
 	CaseSensHeader bool
 
-	requiredFields      map[string]bool
-	acceptMissingFields map[string]bool
+	requiredFields map[string]bool
 
 	// Strict true: header and struct must match exactly
 	// Strict false: struct can be a subset of the header defined columns [default]
-	Strict    bool
-	headerDef map[int]bool // used for non-strict mode
+	Strict bool
+
+	inputHeaderSize        int
+	headerStructableFields map[string]int // used for non-strict mode
 }
 
 // todo: better handling of io.EOF error
@@ -72,8 +73,9 @@ func (r *Reader) ReadHeader(v interface{}) error {
 }
 
 func (r *Reader) validateHeader(header line, v interface{}) error {
+	r.inputHeaderSize = len(header)
 	s := reflect.ValueOf(v).Elem()
-	r.headerDef = make(map[int]bool)
+	r.headerStructableFields = make(map[string]int)
 	if r.Strict {
 		if s.NumField() != len(header) {
 			return &FieldMismatch{s.NumField(), len(header)}
@@ -88,7 +90,7 @@ func (r *Reader) validateHeader(header line, v interface{}) error {
 			} else if !strings.EqualFold(ss, hs) {
 				return &FieldNameMismatch{ss, hs}
 			}
-			r.headerDef[i] = true
+			r.headerStructableFields[hs] = i
 		}
 	} else {
 		missingFields := []string{}
@@ -106,17 +108,20 @@ func (r *Reader) validateHeader(header line, v interface{}) error {
 			}
 			hIndex, inHeader := hMap[ss]
 			if inHeader {
-				r.headerDef[hIndex] = true
+				r.headerStructableFields[ss] = hIndex
 			} else {
 				if len(r.requiredFields) > 0 && r.requiredFields[ss] {
-					missingFields = append(missingFields, ss)
-				} else if len(r.acceptMissingFields) > 0 && !r.acceptMissingFields[ss] {
 					missingFields = append(missingFields, ss)
 				}
 			}
 		}
 		if len(missingFields) > 0 {
-			return fmt.Errorf("Header missing struct fields %s; found: %s", strings.Join(missingFields, " "), strings.Join(header, " "))
+			return fmt.Errorf("header missing struct fields %s; found: %s", strings.Join(missingFields, " "), strings.Join(header, " "))
+		}
+	}
+	for required := range r.requiredFields {
+		if _, structable := r.headerStructableFields[required]; !structable {
+			return fmt.Errorf("required field %s does not exist in struct", required)
 		}
 	}
 	return nil
@@ -139,18 +144,6 @@ func (r *Reader) RequiredFields(fields ...string) {
 	r.requiredFields = m
 }
 
-// if set, the reader accepts headers missing fields contained in the struct
-func (r *Reader) AcceptMissingFields(fields ...string) {
-	m := make(map[string]bool)
-	for _, s := range fields {
-		if !r.CaseSensHeader {
-			s = strings.ToLower(s)
-		}
-		m[s] = true
-	}
-	r.acceptMissingFields = m
-}
-
 func NewReader(source io.Reader, separator rune) *Reader {
 	r := Reader{inner: csv.NewReader(source)}
 	r.inner.Comma = separator
@@ -169,29 +162,38 @@ func NewFileReader(fName string, separator rune) (*Reader, error) {
 	return NewReader(file, separator), nil
 }
 
-func (r *Reader) strictUnmarshal(line []string, v interface{}) error {
-	s := reflect.ValueOf(v).Elem()
-	if r.inner.FieldsPerRecord > 0 && s.NumField() != len(line) {
-		return &FieldMismatch{s.NumField(), len(line)}
+func (r *Reader) Unmarshal(line []string, v interface{}) error {
+	struc := reflect.ValueOf(v).Elem()
+	if r.inner.FieldsPerRecord > 0 && r.inputHeaderSize != len(line) {
+		return &FieldMismatch{r.inputHeaderSize, len(line)}
 	}
 	if r.inner.FieldsPerRecord < 1 {
-		for len(line) < s.NumField() {
+		for len(line) < struc.NumField() {
 			line = append(line, "")
 		}
 	}
-	for i := 0; i < s.NumField(); i++ {
-		f := s.Field(i)
+	for i := 0; i < struc.NumField(); i++ {
+		f := struc.Field(i)
+		name := struc.Type().Field(i).Name
+		if r.CaseSensHeader {
+			name = strings.ToLower(name)
+		}
+		colIndex, structableFields := r.headerStructableFields[name]
+		if !structableFields {
+			continue
+		}
+		val := line[colIndex]
 		switch f.Type().String() {
 		case "string":
-			f.SetString(line[i])
+			f.SetString(val)
 		case "int":
-			ival, err := strconv.ParseInt(line[i], 10, 0)
+			ival, err := strconv.ParseInt(val, 10, 0)
 			if err != nil {
 				return err
 			}
 			f.SetInt(ival)
 		case "bool":
-			bval, err := strconv.ParseBool(line[i])
+			bval, err := strconv.ParseBool(val)
 			if err != nil {
 				return err
 			}
@@ -201,17 +203,4 @@ func (r *Reader) strictUnmarshal(line []string, v interface{}) error {
 		}
 	}
 	return nil
-}
-
-func (r *Reader) Unmarshal(line []string, v interface{}) error {
-	if r.Strict {
-		return r.strictUnmarshal(line, v)
-	}
-	strict := []string{}
-	for i, s := range line {
-		if r.headerDef[i] {
-			strict = append(strict, s)
-		}
-	}
-	return r.strictUnmarshal(strict, v)
 }
