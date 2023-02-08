@@ -234,3 +234,39 @@ FRA	fre	Paris		3	false`
 		//fmt.Println(string(bts))
 	}
 }
+
+func TestCsvReaderWithRequiredFields(t *testing.T) {
+	var err error
+	var source = `Country	OrigLang	Orth	Exonym	Priority	Checked
+GBR	eng	The Thames	Themsen	4	true
+BEL	fre	Bruxelles	Bryssel	3	false
+FRA	fre	Paris		3	false`
+	var separator = '	'
+	var reader = NewStringReader(source, separator)
+	reader.CaseSensHeader = true
+	reader.Strict = false
+	reader.AcceptShortLines()
+	reader.RequiredFields("Orig", "OrigLang")
+	var header entry
+	err = reader.ReadHeader(&header)
+	if err != nil {
+		t.Errorf("Got error from ReadHeader: %v", err)
+		return
+	}
+	for {
+		var entry entry
+		err := reader.Read(&entry)
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			t.Errorf("Got error from Read: %v", err)
+			return
+		}
+		// bts, err := json.Marshal(entry)
+		// if err != nil {
+		// 	t.Errorf("Got error from json.Marshal: %v", err)
+		// }
+		//fmt.Println(string(bts))
+	}
+}

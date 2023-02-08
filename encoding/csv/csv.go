@@ -42,6 +42,7 @@ type Reader struct {
 	inner          *csv.Reader
 	CaseSensHeader bool
 
+	requiredFields      map[string]bool
 	acceptMissingFields map[string]bool
 
 	// Strict true: header and struct must match exactly
@@ -107,7 +108,9 @@ func (r *Reader) validateHeader(header line, v interface{}) error {
 			if inHeader {
 				r.headerDef[hIndex] = true
 			} else {
-				if !r.acceptMissingFields[ss] {
+				if len(r.requiredFields) > 0 && r.requiredFields[ss] {
+					missingFields = append(missingFields, ss)
+				} else if len(r.acceptMissingFields) > 0 && !r.acceptMissingFields[ss] {
 					missingFields = append(missingFields, ss)
 				}
 			}
@@ -122,6 +125,18 @@ func (r *Reader) validateHeader(header line, v interface{}) error {
 // if set, the parser will accept input lines with fewer columns than earlier lines (is the last column is empty, some converters will skip it, hence this method could be useful)
 func (r *Reader) AcceptShortLines() {
 	r.inner.FieldsPerRecord = -1
+}
+
+// if set, the reader accepts headers missing any fields except for these
+func (r *Reader) RequiredFields(fields ...string) {
+	m := make(map[string]bool)
+	for _, s := range fields {
+		if !r.CaseSensHeader {
+			s = strings.ToLower(s)
+		}
+		m[s] = true
+	}
+	r.requiredFields = m
 }
 
 // if set, the reader accepts headers missing fields contained in the struct
