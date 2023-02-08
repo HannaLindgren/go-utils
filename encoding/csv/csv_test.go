@@ -24,7 +24,7 @@ func TestCsvReaderUseCase(t *testing.T) {
 	var err error
 	var source = `country	origLang	orth	exonym	priority	checked	comment
 GBR	eng	The Thames	Themsen	4	true	hepp
-BEL	fre	Bruxelles	Bryssel	3	false	`
+BEL	fre	Bruxelles	Bryssel"	3	false	`
 	var separator = '	'
 	var reader = NewStringReader(source, separator)
 	reader.Strict = true

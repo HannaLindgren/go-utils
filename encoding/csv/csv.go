@@ -147,6 +147,7 @@ func (r *Reader) RequiredFields(fields ...string) {
 func NewReader(source io.Reader, separator rune) *Reader {
 	r := Reader{inner: csv.NewReader(source)}
 	r.inner.Comma = separator
+	r.inner.LazyQuotes = true
 	return &r
 }
 
