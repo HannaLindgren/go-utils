@@ -175,3 +175,82 @@ BEL	fre	Bruxelles	Bryssel	3	false		hardwired_cities`
 		//fmt.Println(string(bts))
 	}
 }
+
+func TestCsvReaderNonStrictCaseInsensShortLines(t *testing.T) {
+	var err error
+	var source = `country	OrigLang	Orth	Exonym	Priority	Checked	Comment	Template
+GBR	eng	The Thames	Themsen	4	true	hepp	auto_case
+BEL	fre	Bruxelles	Bryssel	3	false		hardwired_cities
+FRA	fre	Paris		3	false`
+	var separator = '	'
+	var reader = NewStringReader(source, separator)
+	reader.CaseSensHeader = false
+	if err != nil {
+		t.Errorf("Got error from NewStringReader: %v", err)
+		return
+	}
+	reader.Strict = false
+	reader.AcceptShortLines()
+	var header entry
+	err = reader.ReadHeader(&header)
+	if err != nil {
+		t.Errorf("Got error from ReadHeader: %v", err)
+		return
+	}
+	for {
+		var entry entry
+		err := reader.Read(&entry)
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			t.Errorf("Got error from Read: %v", err)
+			return
+		}
+		// bts, err := json.Marshal(entry)
+		// if err != nil {
+		// 	t.Errorf("Got error from json.Marshal: %v", err)
+		// }
+		//fmt.Println(string(bts))
+	}
+}
+
+func TestCsvReaderWithMissingFields(t *testing.T) {
+	var err error
+	var source = `Country	OrigLang	Orth	Exonym	Priority	Checked
+GBR	eng	The Thames	Themsen	4	true
+BEL	fre	Bruxelles	Bryssel	3	false
+FRA	fre	Paris		3	false`
+	var separator = '	'
+	var reader = NewStringReader(source, separator)
+	reader.CaseSensHeader = true
+	if err != nil {
+		t.Errorf("Got error from NewStringReader: %v", err)
+		return
+	}
+	reader.Strict = false
+	reader.AcceptShortLines()
+	reader.AcceptMissingFields("Comment")
+	var header entry
+	err = reader.ReadHeader(&header)
+	if err != nil {
+		t.Errorf("Got error from ReadHeader: %v", err)
+		return
+	}
+	for {
+		var entry entry
+		err := reader.Read(&entry)
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			t.Errorf("Got error from Read: %v", err)
+			return
+		}
+		// bts, err := json.Marshal(entry)
+		// if err != nil {
+		// 	t.Errorf("Got error from json.Marshal: %v", err)
+		// }
+		//fmt.Println(string(bts))
+	}
+}

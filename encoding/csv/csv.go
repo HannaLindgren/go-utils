@@ -42,6 +42,8 @@ type Reader struct {
 	inner          *csv.Reader
 	CaseSensHeader bool
 
+	acceptMissingFields map[string]bool
+
 	// Strict true: header and struct must match exactly
 	// Strict false: struct can be a subset of the header defined columns [default]
 	Strict    bool
@@ -52,10 +54,12 @@ type Reader struct {
 func (r *Reader) Read(v interface{}) error {
 	fs, err := r.inner.Read()
 	if err != nil {
+		if err != io.EOF {
+			return fmt.Errorf("failed to read line %v : %v", strings.Join(fs, string(r.inner.Comma)), err)
+		}
 		return err
 	}
 	return r.Unmarshal(fs, v)
-	return nil
 }
 
 func (r *Reader) ReadHeader(v interface{}) error {
@@ -99,18 +103,33 @@ func (r *Reader) validateHeader(header line, v interface{}) error {
 				ss = strings.ToLower(ss)
 			}
 			hIndex, inHeader := hMap[ss]
-			if !inHeader {
-				return fmt.Errorf("Header missing struct field %s; found: %s", ss, strings.Join(header, " "))
+			if inHeader {
+				r.headerDef[hIndex] = true
+			} else {
+				if !r.acceptMissingFields[ss] {
+					return fmt.Errorf("Header missing struct field %s; found: %s", ss, strings.Join(header, " "))
+				}
 			}
-			r.headerDef[hIndex] = true
 		}
 	}
 	return nil
 }
 
-// if set, the parser will accept input lines with fewer columns than earlier lines
+// if set, the parser will accept input lines with fewer columns than earlier lines (is the last column is empty, some converters will skip it, hence this method could be useful)
 func (r *Reader) AcceptShortLines() {
 	r.inner.FieldsPerRecord = -1
+}
+
+// if set, the reader accepts headers missing fields contained in the struct
+func (r *Reader) AcceptMissingFields(fields ...string) {
+	m := make(map[string]bool)
+	for _, s := range fields {
+		if !r.CaseSensHeader {
+			s = strings.ToLower(s)
+		}
+		m[s] = true
+	}
+	r.acceptMissingFields = m
 }
 
 func NewReader(source io.Reader, separator rune) *Reader {
@@ -133,8 +152,13 @@ func NewFileReader(fName string, separator rune) (*Reader, error) {
 
 func (r *Reader) strictUnmarshal(line []string, v interface{}) error {
 	s := reflect.ValueOf(v).Elem()
-	if s.NumField() != len(line) {
+	if r.inner.FieldsPerRecord > 0 && s.NumField() != len(line) {
 		return &FieldMismatch{s.NumField(), len(line)}
+	}
+	if r.inner.FieldsPerRecord < 1 {
+		for len(line) < s.NumField() {
+			line = append(line, "")
+		}
 	}
 	for i := 0; i < s.NumField(); i++ {
 		f := s.Field(i)
