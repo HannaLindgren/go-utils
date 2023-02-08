@@ -12,7 +12,7 @@ import (
 	hio "github.com/HannaLindgren/go-utils/io"
 )
 
-func process(requestedFields map[string]int, lines []string) error {
+func process(requestedFields map[string]field, lines []string) error {
 	if len(lines) == 0 {
 		return fmt.Errorf("no input lines")
 	}
@@ -27,15 +27,15 @@ func process(requestedFields map[string]int, lines []string) error {
 	var nColsToPrint = 0
 	for i, s := range existingFields {
 		if ri, doPrint := requestedFields[s]; doPrint {
-			colsToPrint[i] = ri
+			colsToPrint[i] = ri.index
 			nColsToPrint++
 		}
 	}
 
 	// check for invalid columns in input flag
-	for f := range requestedFields {
-		if !slices.Contains(existingFields, f) {
-			return fmt.Errorf("requested field %s does not exist in input", f)
+	for key, field := range requestedFields {
+		if !slices.Contains(existingFields, key) {
+			return fmt.Errorf("requested field %s does not exist in input data", field.name)
 		}
 	}
 
@@ -65,11 +65,16 @@ var fieldSep string
 
 var columnSplitRE = regexp.MustCompile("[,;: ]+")
 
+type field struct {
+	index int
+	name  string
+}
+
 func main() {
 
-	caseSens = flag.Bool("case", false, "Case sensitive column headers")
-	fieldSepFlag := flag.String("sep", "<tab>", "Field `separator`")
-	skipHeader = flag.Bool("noheader", false, "Do not include header in output")
+	caseSens = flag.Bool("c", false, "Case sensitive column headers")
+	fieldSepFlag := flag.String("s", "<tab>", "Field `separator`")
+	skipHeader = flag.Bool("H", false, "Do not include header in output")
 	fieldSep = *fieldSepFlag
 	if fieldSep == "<tab>" {
 		fieldSep = "\t"
@@ -95,12 +100,13 @@ func main() {
 		os.Exit(0)
 	}
 
-	var requestedFields = map[string]int{}
+	var requestedFields = map[string]field{}
 	for i, f := range columnSplitRE.Split(flag.Args()[0], -1) {
+		var key = f
 		if !*caseSens {
-			f = strings.ToLower(f)
+			key = strings.ToLower(f)
 		}
-		requestedFields[f] = i
+		requestedFields[key] = field{index: i, name: f}
 	}
 
 	//fmt.Fprintf(os.Stderr, "%#v\n", requestedFields)
