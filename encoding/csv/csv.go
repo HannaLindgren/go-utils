@@ -45,7 +45,7 @@ type Reader struct {
 	// Strict true: header and struct must match exactly
 	// Strict false: struct can be a subset of the header defined columns [default]
 	Strict    bool
-	headerDef map[int]string // used for non-strict mode
+	headerDef map[int]bool // used for non-strict mode
 }
 
 // todo: better handling of io.EOF error
@@ -63,31 +63,54 @@ func (r *Reader) ReadHeader(v interface{}) error {
 	if err != nil {
 		return err
 	}
-	r.headerDef = make(map[int]string)
-	for i, s := range header {
-		r.headerDef[i] = s
-	}
-	s := reflect.ValueOf(v).Elem()
+	return r.validateHeader(header, v)
+}
 
+func (r *Reader) validateHeader(header line, v interface{}) error {
+	s := reflect.ValueOf(v).Elem()
+	r.headerDef = make(map[int]bool)
 	if r.Strict {
 		if s.NumField() != len(header) {
 			return &FieldMismatch{s.NumField(), len(header)}
 		}
 		for i := 0; i < s.NumField(); i++ {
-			s := s.Type().Field(i).Name
-			h := header[i]
+			ss := s.Type().Field(i).Name
+			hs := header[i]
 			if r.CaseSensHeader {
-				if s != h {
-					return &FieldNameMismatch{s, h}
+				if ss != hs {
+					return &FieldNameMismatch{ss, hs}
 				}
-			} else if !strings.EqualFold(s, h) {
-				return &FieldNameMismatch{s, h}
+			} else if !strings.EqualFold(ss, hs) {
+				return &FieldNameMismatch{ss, hs}
 			}
+			r.headerDef[i] = true
 		}
 	} else {
-		return fmt.Errorf("Non-strict mode is not implemented")
+		hMap := make(map[string]int)
+		for i, s := range header {
+			if !r.CaseSensHeader {
+				s = strings.ToLower(s)
+			}
+			hMap[s] = i
+		}
+		for i := 0; i < s.NumField(); i++ {
+			ss := s.Type().Field(i).Name
+			if !r.CaseSensHeader {
+				ss = strings.ToLower(ss)
+			}
+			hIndex, inHeader := hMap[ss]
+			if !inHeader {
+				return fmt.Errorf("Header missing struct field %s; found: %s", ss, strings.Join(header, " "))
+			}
+			r.headerDef[hIndex] = true
+		}
 	}
 	return nil
+}
+
+// if set, the parser will accept input lines with fewer columns than earlier lines
+func (r *Reader) AcceptShortLines() {
+	r.inner.FieldsPerRecord = -1
 }
 
 func NewReader(source io.Reader, separator rune) *Reader {
@@ -108,35 +131,44 @@ func NewFileReader(fName string, separator rune) (*Reader, error) {
 	return NewReader(file, separator), nil
 }
 
-func (r *Reader) Unmarshal(line []string, v interface{}) error {
+func (r *Reader) strictUnmarshal(line []string, v interface{}) error {
 	s := reflect.ValueOf(v).Elem()
-	if r.Strict {
-		if s.NumField() != len(line) {
-			return &FieldMismatch{s.NumField(), len(line)}
-		}
-		for i := 0; i < s.NumField(); i++ {
-			f := s.Field(i)
-			switch f.Type().String() {
-			case "string":
-				f.SetString(line[i])
-			case "int":
-				ival, err := strconv.ParseInt(line[i], 10, 0)
-				if err != nil {
-					return err
-				}
-				f.SetInt(ival)
-			case "bool":
-				bval, err := strconv.ParseBool(line[i])
-				if err != nil {
-					return err
-				}
-				f.SetBool(bval)
-			default:
-				return &UnsupportedType{f.Type().String()}
+	if s.NumField() != len(line) {
+		return &FieldMismatch{s.NumField(), len(line)}
+	}
+	for i := 0; i < s.NumField(); i++ {
+		f := s.Field(i)
+		switch f.Type().String() {
+		case "string":
+			f.SetString(line[i])
+		case "int":
+			ival, err := strconv.ParseInt(line[i], 10, 0)
+			if err != nil {
+				return err
 			}
+			f.SetInt(ival)
+		case "bool":
+			bval, err := strconv.ParseBool(line[i])
+			if err != nil {
+				return err
+			}
+			f.SetBool(bval)
+		default:
+			return &UnsupportedType{f.Type().String()}
 		}
-	} else {
-		return fmt.Errorf("Non-strict mode is not implemented")
 	}
 	return nil
+}
+
+func (r *Reader) Unmarshal(line []string, v interface{}) error {
+	if r.Strict {
+		return r.strictUnmarshal(line, v)
+	}
+	strict := []string{}
+	for i, s := range line {
+		if r.headerDef[i] {
+			strict = append(strict, s)
+		}
+	}
+	return r.strictUnmarshal(strict, v)
 }
