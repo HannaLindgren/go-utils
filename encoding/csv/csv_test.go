@@ -9,7 +9,7 @@ import (
 
 var staticImport = fmt.Sprintf("import fmt") // always keep fmt in import list
 
-// struct for testing
+// structs for testing
 type entry struct {
 	Country  string
 	OrigLang string
@@ -18,6 +18,17 @@ type entry struct {
 	Priority int
 	Checked  bool
 	Comment  string
+}
+
+type entryWithChildren struct {
+	Country  string
+	OrigLang string
+	Orth     string
+	Exonym   string
+	Priority int
+	Checked  bool
+	Comment  string
+	Children []string
 }
 
 func TestCsvReaderUseCase(t *testing.T) {
@@ -56,6 +67,40 @@ BEL	fre	Bruxelles	Bryssel"	3	false	`
 		if err != nil {
 			t.Errorf("Got error from json.Marshal: %v", err)
 		}
+	}
+}
+
+func TestCsvReaderUseCaseWithChildren(t *testing.T) {
+	var err error
+	var source = `country	origLang	orth	exonym	priority	checked	comment
+GBR	eng	The Thames	Themsen	4	true	hepp
+SWE	swe	Mälaren	Lake Mälaren	1	true	
+BEL	fre	Bruxelles	Bryssel"	3	false	`
+	var separator = '	'
+	var reader = NewStringReader(source, separator)
+	reader.Strict = false
+	var header entryWithChildren
+	err = reader.ReadHeader(&header)
+	if err != nil {
+		t.Errorf("Got error from ReadHeader: %v", err)
+		return
+	}
+	nEntries := 0
+	for {
+		var entry entryWithChildren
+		err := reader.Read(&entry)
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			t.Errorf("Got error from Read: %v", err)
+			return
+		}
+		nEntries++
+	}
+	if nEntries != 3 {
+		t.Errorf("Expected %v entries, got %v", 3, nEntries)
+		return
 	}
 }
 
