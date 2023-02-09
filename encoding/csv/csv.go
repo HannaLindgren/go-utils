@@ -52,7 +52,9 @@ type Reader struct {
 	headerStructableFields map[string]int // used for non-strict mode
 }
 
-// todo: better handling of io.EOF error
+// Read reads the next line from the input data
+// @return io.EOF when at the end of input
+// todo: better handling of io.EOF error?
 func (r *Reader) Read(v interface{}) error {
 	fs, err := r.inner.Read()
 	if err != nil {
