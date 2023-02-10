@@ -3,7 +3,8 @@ package csv
 import (
 	"encoding/json"
 	"fmt"
-	"io"
+	"log"
+	"strings"
 	"testing"
 )
 
@@ -36,9 +37,9 @@ func TestCsvReaderUseCase(t *testing.T) {
 	var source = `country	origLang	orth	exonym	priority	checked	comment
 GBR	eng	The Thames	Themsen	4	true	hepp
 BEL	fre	Bruxelles	Bryssel"	3	false	`
-	var separator = '	'
+	var separator = '\t'
 	var reader = NewStringReader(source, separator)
-	reader.Strict = true
+	reader.Strict()
 	var header entry
 	err = reader.ReadHeader(&header)
 	if err != nil {
@@ -48,8 +49,8 @@ BEL	fre	Bruxelles	Bryssel"	3	false	`
 	res := []entry{}
 	for {
 		var entry entry
-		err := reader.Read(&entry)
-		if err == io.EOF {
+		hasNext, err := reader.ReadLine(&entry)
+		if !hasNext {
 			break
 		}
 		if err != nil {
@@ -76,9 +77,9 @@ func TestCsvReaderUseCaseWithChildren(t *testing.T) {
 GBR	eng	The Thames	Themsen	4	true	hepp
 SWE	swe	Mälaren	Lake Mälaren	1	true	
 BEL	fre	Bruxelles	Bryssel"	3	false	`
-	var separator = '	'
+	var separator = '\t'
 	var reader = NewStringReader(source, separator)
-	reader.Strict = false
+	reader.AllowMissingFields()
 	var header entryWithChildren
 	err = reader.ReadHeader(&header)
 	if err != nil {
@@ -88,8 +89,8 @@ BEL	fre	Bruxelles	Bryssel"	3	false	`
 	nEntries := 0
 	for {
 		var entry entryWithChildren
-		err := reader.Read(&entry)
-		if err == io.EOF {
+		hasNext, err := reader.ReadLine(&entry)
+		if !hasNext {
 			break
 		}
 		if err != nil {
@@ -109,9 +110,9 @@ func TestCsvReaderWithInvalidHeader(t *testing.T) {
 	var source = `country	origLang	orth	exonym	priority	checked	comments
 GBR	eng	The Thames	Themsen	4	true	hepp
 BEL	fre	Bruxelles	Bryssel	3	false	`
-	var separator = '	'
+	var separator = '\t'
 	var reader = NewStringReader(source, separator)
-	reader.Strict = true
+	reader.Strict()
 	var header entry
 	err = reader.ReadHeader(&header)
 	if err == nil {
@@ -124,14 +125,14 @@ func TestCsvReaderWithInvalidCaseHeader(t *testing.T) {
 	var source = `country	origLang	orth	exonym	priority	checked	comment
 GBR	eng	The Thames	Themsen	4	true	hepp
 BEL	fre	Bruxelles	Bryssel	3	false	`
-	var separator = '	'
+	var separator = '\t'
 	var reader = NewStringReader(source, separator)
 	reader.CaseSensHeader = true
 	if err != nil {
 		t.Errorf("Got error from NewStringReader: %v", err)
 		return
 	}
-	reader.Strict = true
+	reader.Strict()
 	var header entry
 	err = reader.ReadHeader(&header)
 	if err == nil {
@@ -144,10 +145,10 @@ func TestCsvReaderNonStrictCaseSens(t *testing.T) {
 	var source = `Country	OrigLang	Orth	Exonym	Template	Priority	Checked	Comment
 GBR	eng	The Thames	Themsen	tmpl	4	true	hepp
 BEL	fre	Bruxelles	Bryssel	tmpl	3	false	`
-	var separator = '	'
+	var separator = '\t'
 	var reader = NewStringReader(source, separator)
 	reader.CaseSensHeader = true
-	reader.Strict = false
+	reader.AllowUnknownFields()
 	var header entry
 	err = reader.ReadHeader(&header)
 	if err != nil {
@@ -156,8 +157,8 @@ BEL	fre	Bruxelles	Bryssel	tmpl	3	false	`
 	}
 	for {
 		var entry entry
-		err := reader.Read(&entry)
-		if err == io.EOF {
+		hasNext, err := reader.ReadLine(&entry)
+		if !hasNext {
 			break
 		}
 		if err != nil {
@@ -177,10 +178,10 @@ func TestCsvReaderNonStrictCaseInsens(t *testing.T) {
 	var source = `country	OrigLang	Orth	Exonym	Priority	Checked	Comment	Template
 GBR	eng	The Thames	Themsen	4	true	hepp	auto_case
 BEL	fre	Bruxelles	Bryssel	3	false		hardwired_cities`
-	var separator = '	'
+	var separator = '\t'
 	var reader = NewStringReader(source, separator)
 	reader.CaseSensHeader = false
-	reader.Strict = false
+	reader.AllowUnknownFields()
 	var header entry
 	err = reader.ReadHeader(&header)
 	if err != nil {
@@ -189,8 +190,8 @@ BEL	fre	Bruxelles	Bryssel	3	false		hardwired_cities`
 	}
 	for {
 		var entry entry
-		err := reader.Read(&entry)
-		if err == io.EOF {
+		hasNext, err := reader.ReadLine(&entry)
+		if !hasNext {
 			break
 		}
 		if err != nil {
@@ -211,10 +212,10 @@ func TestCsvReaderNonStrictCaseInsensShortLines(t *testing.T) {
 GBR	eng	The Thames	Themsen	4	true	hepp	auto_case
 BEL	fre	Bruxelles	Bryssel	3	false		hardwired_cities
 FRA	fre	Paris		3	false`
-	var separator = '	'
+	var separator = '\t'
 	var reader = NewStringReader(source, separator)
 	reader.CaseSensHeader = false
-	reader.Strict = false
+	reader.AllowUnknownFields()
 	reader.AcceptShortLines()
 	var header entry
 	err = reader.ReadHeader(&header)
@@ -224,8 +225,8 @@ FRA	fre	Paris		3	false`
 	}
 	for {
 		var entry entry
-		err := reader.Read(&entry)
-		if err == io.EOF {
+		hasNext, err := reader.ReadLine(&entry)
+		if !hasNext {
 			break
 		}
 		if err != nil {
@@ -245,11 +246,12 @@ func TestCsvReaderWithRequiredFields(t *testing.T) {
 	var source = `Country	Template	OrigLang	Orth	Exonym	Checked
 GBR	tmpl2	eng	The Thames	Themsen	true
 BEL	tmpl1	fre	Bruxelles	Bryssel	false
-FRA	tmpl3	fre	Paris		`
-	var separator = '	'
+	tmpl3	fre	Paris		false`
+	var separator = '\t'
 	var reader = NewStringReader(source, separator)
 	reader.CaseSensHeader = true
-	reader.Strict = false
+	reader.AllowMissingFields()
+	reader.AllowUnknownFields()
 	//reader.AcceptShortLines()
 	reader.RequiredFields("Orth", "OrigLang")
 	var header entry
@@ -260,8 +262,8 @@ FRA	tmpl3	fre	Paris		`
 	}
 	for {
 		var entry entry
-		err := reader.Read(&entry)
-		if err == io.EOF {
+		hasNext, err := reader.ReadLine(&entry)
+		if !hasNext {
 			break
 		}
 		if err != nil {
@@ -273,5 +275,171 @@ FRA	tmpl3	fre	Paris		`
 			t.Errorf("Got error from json.Marshal: %v", err)
 		}
 		fmt.Println(string(bts))
+	}
+}
+
+func ExampleReader_ReadLine_Strict() {
+	var err error
+	var source = `country	origLang	orth	exonym	priority	checked	comment
+GBR	eng	The Thames	Themsen	4	true	todo
+BEL	fre	Bruxelles	Bryssel"	3	false	`
+
+	var separator = '\t'
+	var reader = NewStringReader(source, separator)
+	reader.Strict()
+	var header entry
+	err = reader.ReadHeader(&header)
+	if err != nil {
+		log.Printf("Got error from ReadHeader: %v", err)
+		return
+	}
+	res := []entry{}
+	for {
+		var e entry
+		hasNext, err := reader.ReadLine(&e)
+		if !hasNext {
+			break
+		}
+		if err != nil {
+			log.Printf("Got error from Read: %v", err)
+			return
+		}
+		res = append(res, e)
+	}
+	for _, e := range res {
+		bts, err := json.Marshal(e)
+		if err != nil {
+			log.Printf("Got error from json.Marshal: %v", err)
+		}
+		fmt.Println(string(bts))
+	}
+
+	// Output: {"Country":"GBR","OrigLang":"eng","Orth":"The Thames","Exonym":"Themsen","Priority":4,"Checked":true,"Comment":"todo"}
+	// {"Country":"BEL","OrigLang":"fre","Orth":"Bruxelles","Exonym":"Bryssel\"","Priority":3,"Checked":false,"Comment":""}
+}
+
+func ExampleReader_ReadLine_AllowOrderMismatch() {
+	var err error
+	var source = `origLang	country	orth	exonym	priority	checked	comment
+GBR	eng	The Thames	Themsen	4	true	todo
+BEL	fre	Bruxelles	Bryssel"	3	false	`
+
+	var separator = '\t'
+	var reader = NewStringReader(source, separator)
+	reader.AllowOrderMismatch()
+	var header entry
+	err = reader.ReadHeader(&header)
+	if err != nil {
+		log.Printf("Got error from ReadHeader: %v", err)
+		return
+	}
+	res := []entry{}
+	for {
+		var e entry
+		hasNext, err := reader.ReadLine(&e)
+		if !hasNext {
+			break
+		}
+		if err != nil {
+			log.Printf("Got error from Read: %v", err)
+			return
+		}
+		res = append(res, e)
+	}
+	for _, e := range res {
+		bts, err := json.Marshal(e)
+		if err != nil {
+			log.Printf("Got error from json.Marshal: %v", err)
+		}
+		fmt.Println(string(bts))
+	}
+
+	// Output: {"Country":"eng","OrigLang":"GBR","Orth":"The Thames","Exonym":"Themsen","Priority":4,"Checked":true,"Comment":"todo"}
+	// {"Country":"fre","OrigLang":"BEL","Orth":"Bruxelles","Exonym":"Bryssel\"","Priority":3,"Checked":false,"Comment":""}
+}
+
+func ExampleReader_ReadLine_NonStrict() {
+	var err error
+	var source = `origLang	country	orth	exonym	priority	template	comment
+GBR	eng	The Thames	Themsen	4	tmpl1	todo
+BEL	fre	Bruxelles	Bryssel	3	tmpl2	`
+
+	var separator = '\t'
+	var reader = NewStringReader(source, separator)
+	reader.NonStrict()
+	var header entry
+	err = reader.ReadHeader(&header)
+	if err != nil {
+		log.Printf("Got error from ReadHeader: %v", err)
+		return
+	}
+	res := []entry{}
+	for {
+		var e entry
+		hasNext, err := reader.ReadLine(&e)
+		if !hasNext {
+			break
+		}
+		if err != nil {
+			log.Printf("Got error from Read: %v", err)
+			return
+		}
+		res = append(res, e)
+	}
+	for _, e := range res {
+		bts, err := json.Marshal(e)
+		if err != nil {
+			log.Printf("Got error from json.Marshal: %v", err)
+		}
+		fmt.Println(string(bts))
+	}
+
+	// Output: {"Country":"eng","OrigLang":"GBR","Orth":"The Thames","Exonym":"Themsen","Priority":4,"Checked":false,"Comment":"todo"}
+	// {"Country":"fre","OrigLang":"BEL","Orth":"Bruxelles","Exonym":"Bryssel","Priority":3,"Checked":false,"Comment":""}
+}
+
+func TestReadLine_StrictButAllowOrderMismatch(t *testing.T) {
+	var err error
+	var source = `origLang	country	orth	exonym	priority	checked	template	comment
+GBR	eng	The Thames	Themsen	4	true	tmpl1	todo
+BEL	fre	Bruxelles	Bryssel"	3	false	tmpl2	`
+
+	var separator = '\t'
+	var reader = NewStringReader(source, separator)
+	reader.Strict()
+	reader.AllowOrderMismatch()
+	var header entry
+	err = reader.ReadHeader(&header)
+	if err != nil {
+		expectSubstring := "header contains unknown field"
+		if !strings.Contains(fmt.Sprintf("%v", err), expectSubstring) {
+			t.Errorf("expected error: %v, found: %v", expectSubstring, err)
+
+		}
+	} else {
+		t.Errorf("expected error here")
+	}
+}
+
+func TestReadLine_NonStrictButDisallowOrderMismatch(t *testing.T) {
+	var err error
+	var source = `origLang	country	orth	exonym	priority	checked	template	comment
+GBR	eng	The Thames	Themsen	4	true	tmpl1	todo
+BEL	fre	Bruxelles	Bryssel"	3	false	tmpl2	`
+
+	var separator = '\t'
+	var reader = NewStringReader(source, separator)
+	reader.Strict()
+	reader.AllowUnknownFields()
+	var header entry
+	err = reader.ReadHeader(&header)
+	if err != nil {
+		expectSubstring := "header is not ordered according to struct"
+		if !strings.Contains(fmt.Sprintf("%v", err), expectSubstring) {
+			t.Errorf("expected error: %v, found: %v", expectSubstring, err)
+
+		}
+	} else {
+		t.Errorf("expected error here")
 	}
 }
