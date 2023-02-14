@@ -137,8 +137,6 @@ func main() {
 			os.Exit(1)
 		}
 	}
-	fmt.Println("FILES", files)
-
 	if len(files) == 0 {
 		printUsage()
 		os.Exit(0)
