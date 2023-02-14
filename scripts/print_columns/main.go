@@ -129,7 +129,7 @@ func main() {
 
 	flag.Parse()
 
-	if flag.NArg() < 2 {
+	if flag.NArg() < 1 {
 		printUsage()
 		os.Exit(0)
 	}
@@ -187,6 +187,10 @@ func main() {
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "[error] Failed to read from stdin: %v\n", err)
 			os.Exit(1)
+		}
+		if len(lines) == 0 {
+			printUsage()
+			os.Exit(0)
 		}
 		err = process(requestedFields, lines)
 		if err != nil {
