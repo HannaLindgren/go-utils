@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"log"
 	"os"
 	"path"
 	"path/filepath"
@@ -69,6 +68,12 @@ func convertFile(xlsxFile, newExt string) (string, int, error) {
 
 	var nLines int
 
+	lines, err := readFile(xlsxFile)
+	if err != nil {
+		return "", 0, fmt.Errorf("read failed : %v", err)
+	}
+	nLines = len(lines)
+
 	ext := strings.TrimPrefix(filepath.Ext(xlsxFile), ".")
 	if ext != "xlsx" {
 		return "", nLines, fmt.Errorf("input file has invalid extension %s", xlsxFile)
@@ -82,12 +87,6 @@ func convertFile(xlsxFile, newExt string) (string, int, error) {
 		return "", nLines, fmt.Errorf("Failed to create file: %v", err)
 	}
 	defer outWriter.Close()
-
-	lines, err := readFile(xlsxFile)
-	if err != nil {
-		return "", 0, fmt.Errorf("read failed : %v", err)
-	}
-	nLines = len(lines)
 
 	for _, fs := range lines {
 		l := strings.Join(fs, fieldSep)
@@ -112,7 +111,9 @@ func main() {
 	var printUsage = func() {
 		fmt.Fprintln(os.Stderr, "Convert xlsx file sto tsv/csv")
 		fmt.Fprintln(os.Stderr)
-		fmt.Fprintf(os.Stderr, "Usage: %s <files>", cmdname)
+		fmt.Fprintf(os.Stderr, "Usage: %s <files>\n", cmdname)
+		fmt.Fprintln(os.Stderr, "       OR")
+		fmt.Fprintf(os.Stderr, "       cat <files> | %s\n", cmdname)
 		fmt.Fprintln(os.Stderr, "\nOptional flags:")
 		flag.PrintDefaults()
 	}
@@ -124,7 +125,21 @@ func main() {
 
 	flag.Parse()
 
-	if flag.NArg() < 1 {
+	files := flag.Args()
+	if flag.NArg() == 0 {
+		var err error
+		files, err = hio.ReadStdinToLines()
+		for i, f := range files {
+			files[i] = strings.TrimSpace(f)
+		}
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Failed to read stdin: %v\n", err)
+			os.Exit(1)
+		}
+	}
+	fmt.Println("FILES", files)
+
+	if len(files) == 0 {
 		printUsage()
 		os.Exit(0)
 	}
@@ -134,10 +149,11 @@ func main() {
 		fieldSep = "\t"
 	}
 
-	for _, f := range flag.Args() {
+	for _, f := range files {
 		outFile, n, err := convertFile(f, *ext)
 		if err != nil {
-			log.Fatal(err)
+			fmt.Fprintf(os.Stderr, "Convert failed: %v\n", err)
+			os.Exit(1)
 		}
 		if *sheetName != "" {
 			fmt.Printf("%s [Sheet:%s] => %s (%v lines)\n", f, *sheetName, outFile, n)
