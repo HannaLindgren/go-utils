@@ -17,3 +17,12 @@ func UpcaseInitial(s string) string {
 	}
 	return head + tail
 }
+
+// Reverse a string
+func Reverse(str string) string {
+	bts := []rune(str)
+	for i, j := 0, len(bts)-1; i < j; i, j = i+1, j-1 {
+		bts[i], bts[j] = bts[j], bts[i]
+	}
+	return string(bts)
+}

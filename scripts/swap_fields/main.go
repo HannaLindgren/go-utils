@@ -30,7 +30,6 @@ func process(s string) string {
 func main() {
 	cmdname := filepath.Base(os.Args[0])
 	if len(os.Args) < 2 {
-		fmt.Println(len(os.Args))
 		fmt.Fprintf(os.Stderr, "Usage: %s <fields-to-print> <files>\n", cmdname)
 		fmt.Fprintf(os.Stderr, "       or\n")
 		fmt.Fprintf(os.Stderr, "       cat <file> | %s <fields-to-print>\n", cmdname)
