@@ -145,7 +145,7 @@ func (p *Processor) RuneInfo(r rune) Info {
 	}
 }
 
-// Info Creates a list of tab-separated unicode information for each input rune
+// Info Creates a list with unicode information for each input rune
 func (p *Processor) UnicodeInfo(s string) []Info {
 	res := []Info{}
 	sx := s
