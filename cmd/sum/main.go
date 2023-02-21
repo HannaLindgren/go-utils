@@ -35,10 +35,12 @@ func main() {
 	var printUsage = func() {
 		fmt.Fprintln(os.Stderr, "Sum of numeric input")
 		fmt.Fprintln(os.Stderr)
-		fmt.Fprintf(os.Stderr, "Usage: %s <file> or cat <file> | %s\n", cmdname)
+		fmt.Fprintf(os.Stderr, "Usage: %s <file>\n", cmdname)
+		fmt.Fprintln(os.Stderr, "       OR")
+		fmt.Fprintf(os.Stderr, "       cat <file> | %s\n", cmdname)
 	}
 
-	if strings.HasPrefix(os.Args[0], "-h") {
+	if strings.HasPrefix(os.Args[1], "-h") {
 		printUsage()
 		os.Exit(0)
 	}
