@@ -50,12 +50,12 @@ BEL	fre	Bruxelles	Bryssel"	3	false	`
 	for {
 		var entry entry
 		hasNext, err := reader.ReadLine(&entry)
-		if !hasNext {
-			break
-		}
 		if err != nil {
 			t.Errorf("Got error from Read: %v", err)
 			return
+		}
+		if !hasNext {
+			break
 		}
 		res = append(res, entry)
 	}

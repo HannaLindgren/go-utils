@@ -87,7 +87,7 @@ func (r *Reader) RequiredFields(fields ...string) {
 func (r *Reader) ReadLine(v any) (bool, error) {
 	fs, err := r.inner.Read()
 	if err != nil {
-		if err != io.EOF {
+		if err == io.EOF {
 			return false, nil
 		}
 		return false, fmt.Errorf("failed to read line %v : %v", strings.Join(fs, string(r.inner.Comma)), err)
@@ -215,6 +215,9 @@ func NewFileReader(fName string, separator rune) (*Reader, error) {
 }
 
 func (r *Reader) Unmarshal(line []string, v any) error {
+	if r.inputHeaderSize == 0 {
+		return fmt.Errorf("Header is not initialized")
+	}
 	struc := reflect.ValueOf(v).Elem()
 	if r.inner.FieldsPerRecord > 0 && r.inputHeaderSize != len(line) {
 		return &fieldMismatch{r.inputHeaderSize, len(line)}
