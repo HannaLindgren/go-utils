@@ -104,7 +104,7 @@ func main() {
 
 	caseSens = flag.Bool("c", false, "Case sensitive column headers")
 	fieldSepFlag := flag.String("s", "<tab>", "Field `separator` for input data")
-	headerFieldSep := flag.String("cs", ",", "Field `separator` for requested columns' definition")
+	headerFieldSep := flag.String("cs", ",", "Field `separator` for requested column names")
 	skipHeader = flag.Bool("H", false, "Skip output header")
 	preserveFN := "o"
 	preserveOrder = flag.Bool(preserveFN, false, "Preserve input file's column ordering")
@@ -112,8 +112,8 @@ func main() {
 	allowRepeatedColumns := flag.Bool(repeatFN, false, "Allow repeated output fields")
 	verb := flag.Bool("v", false, "Verbose output")
 
-	var printUsage = func() {
-		fmt.Fprintln(os.Stderr, "Script to selected columns based on file header")
+	flag.Usage = func() {
+		fmt.Fprintln(os.Stderr, "Print selected columns based on file header")
 		fmt.Fprintln(os.Stderr)
 		fmt.Fprintf(os.Stderr, "Usage: %s <requested columns> <files>\n", cmdname)
 		fmt.Fprintf(os.Stderr, "       OR\n")
@@ -128,7 +128,7 @@ func main() {
 	flag.Parse()
 
 	if flag.NArg() < 1 {
-		printUsage()
+		flag.Usage()
 		os.Exit(0)
 	}
 
@@ -153,7 +153,7 @@ func main() {
 		f := reqField{index: i, normName: key, name: name}
 		if _, repeated := seenRequestedFields[f.normName]; repeated && !*allowRepeatedColumns {
 			fmt.Fprintf(os.Stderr, "[error] Repeated columns in request: %s (use flag -%s to allow repeated columns)\n\n", key, repeatFN)
-			printUsage()
+			flag.Usage()
 			os.Exit(1)
 		}
 		requestedFields = append(requestedFields, f)
@@ -188,7 +188,7 @@ func main() {
 			os.Exit(1)
 		}
 		if len(lines) == 0 {
-			printUsage()
+			flag.Usage()
 			os.Exit(0)
 		}
 		err = process(requestedFields, lines)
