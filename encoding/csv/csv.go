@@ -160,7 +160,7 @@ func (r *Reader) validateHeader(header line, v any) error {
 				}
 			}
 			if len(unknownFields) > 0 {
-				return fmt.Errorf("header contains unknown fields %s; found: %s", strings.Join(unknownFields, " "), strings.Join(header, " "))
+				return fmt.Errorf("header contains unknown fields %s; found: %s", strings.Join(unknownFields, ", "), strings.Join(header, " "))
 			}
 		}
 		if !r.allowOrderMismatch {

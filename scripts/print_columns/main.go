@@ -4,7 +4,6 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"regexp"
 	"strings"
 
 	"golang.org/x/exp/maps"
@@ -61,7 +60,7 @@ func process(requestedFields []reqField, lines []string) error {
 	// check for invalid columns in input flag
 	for _, rf := range requestedFields {
 		if !slices.Contains(existingFields, rf.normName) {
-			return fmt.Errorf("requested field %s does not exist in input data", rf.name)
+			return fmt.Errorf("requested field '%s' does not exist in input data", rf.name)
 		}
 	}
 
@@ -101,12 +100,11 @@ const cmdname = "print_columns"
 var caseSens, skipHeader, preserveOrder *bool
 var fieldSep string
 
-var columnSplitRE = regexp.MustCompile("[,;: ]+")
-
 func main() {
 
 	caseSens = flag.Bool("c", false, "Case sensitive column headers")
-	fieldSepFlag := flag.String("s", "<tab>", "Field `separator`")
+	fieldSepFlag := flag.String("s", "<tab>", "Field `separator` for input data")
+	headerFieldSep := flag.String("cs", ",", "Field `separator` for requested columns' definition")
 	skipHeader = flag.Bool("H", false, "Skip output header")
 	preserveFN := "o"
 	preserveOrder = flag.Bool(preserveFN, false, "Preserve input file's column ordering")
@@ -146,7 +144,8 @@ func main() {
 	var requestedFieldsString = flag.Args()[0]
 	var requestedFields = []reqField{}
 	var seenRequestedFields = map[string]bool{}
-	for i, name := range columnSplitRE.Split(requestedFieldsString, -1) {
+	//for i, name := range columnSplitRE.Split(requestedFieldsString, -1) {
+	for i, name := range strings.Split(requestedFieldsString, *headerFieldSep) {
 		var key = name
 		if !*caseSens {
 			key = strings.ToLower(key)
