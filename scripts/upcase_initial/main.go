@@ -1,25 +1,36 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"os"
-	"path/filepath"
-	"strings"
 
 	"github.com/HannaLindgren/go-utils/scripts/lib"
-	str "github.com/HannaLindgren/go-utils/strings"
+	"github.com/HannaLindgren/go-utils/strings"
 )
 
+func convert(s string) string {
+	return strings.UpcaseInitial(s, *downcaseRemainder)
+}
+
+var downcaseRemainder *bool
+
 func main() {
-	cmdname := filepath.Base(os.Args[0])
-	if len(os.Args) > 1 && strings.HasPrefix(os.Args[1], "-h") {
-		fmt.Fprintf(os.Stderr, "Usage: %s <files>\n", cmdname)
+	cmdname := "upcase_initial"
+	downcaseRemainder = flag.Bool("d", false, "downcase remainder")
+
+	flag.Usage = func() {
+		fmt.Fprintf(os.Stderr, "Usage: %s <flags> <files>\n", cmdname)
 		fmt.Fprintf(os.Stderr, "       or\n")
-		fmt.Fprintf(os.Stderr, "       cat <file> | %s\n", cmdname)
-		os.Exit(1)
+		fmt.Fprintf(os.Stderr, "       cat <file> | %s <flags> \n", cmdname)
+		fmt.Fprintln(os.Stderr, "\nOptional flags:")
+		flag.PrintDefaults()
 	}
-	err := lib.ConvertAndPrintFromArgsOrStdin(str.UpcaseInitial, os.Args[1:])
+
+	flag.Parse()
+
+	err := lib.ConvertAndPrintFromArgsOrStdin(convert, flag.Args())
 	if err != nil {
 		log.Fatalf("%v", err)
 	}

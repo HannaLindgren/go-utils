@@ -17,7 +17,7 @@ var toker = unicode.Tokenizer{}
 func convert(s string) string {
 	res := ""
 	for _, t := range toker.Tokenize(s) {
-		res = res + str.UpcaseInitial(t.String)
+		res = res + str.UpcaseInitial(t.String, false)
 	}
 	if !strings.EqualFold(s, res) {
 		panic(fmt.Sprintf("Expected output string to equal input string except for case, but found: <%s> => <%s>", s, res))

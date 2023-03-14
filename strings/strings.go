@@ -4,8 +4,8 @@ import (
 	"strings"
 )
 
-// UpcaseInitial Upcase the first rune of a string, and downcase the remainder
-func UpcaseInitial(s string) string {
+// UpcaseInitial Upcase the first rune of a string, and optionally downcase the remainder
+func UpcaseInitial(s string, downcaseRemainder bool) string {
 	runes := []rune(s)
 	head := ""
 	if len(runes) > 0 {
@@ -13,7 +13,10 @@ func UpcaseInitial(s string) string {
 	}
 	tail := ""
 	if len(runes) > 0 {
-		tail = strings.ToLower(string(runes[1:]))
+		tail = string(runes[1:])
+		if downcaseRemainder {
+			tail = strings.ToLower(tail)
+		}
 	}
 	return head + tail
 }
