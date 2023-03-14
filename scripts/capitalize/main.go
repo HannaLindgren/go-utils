@@ -1,10 +1,10 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/HannaLindgren/go-utils/scripts/lib"
@@ -17,7 +17,7 @@ var toker = unicode.Tokenizer{}
 func convert(s string) string {
 	res := ""
 	for _, t := range toker.Tokenize(s) {
-		res = res + str.UpcaseInitial(t.String, false)
+		res = res + str.UpcaseInitial(t.String, *downcaseRemainder)
 	}
 	if !strings.EqualFold(s, res) {
 		panic(fmt.Sprintf("Expected output string to equal input string except for case, but found: <%s> => <%s>", s, res))
@@ -25,16 +25,26 @@ func convert(s string) string {
 	return res
 }
 
+var downcaseRemainder *bool
+
 func main() {
-	cmdname := filepath.Base(os.Args[0])
-	if len(os.Args) > 1 && strings.HasPrefix(os.Args[1], "-h") {
-		fmt.Fprintf(os.Stderr, "Capitalize each word (as separated by a very simple tokenizer)")
-		fmt.Fprintf(os.Stderr, "Usage: %s <files>\n", cmdname)
+	cmdname := "capitalize"
+	downcaseRemainder = flag.Bool("d", false, "downcase remainder")
+
+	flag.Usage = func() {
+		fmt.Fprintf(os.Stderr, "Usage: %s <flags> <files>\n", cmdname)
 		fmt.Fprintf(os.Stderr, "       or\n")
-		fmt.Fprintf(os.Stderr, "       cat <file> | %s\n", cmdname)
-		os.Exit(1)
+		fmt.Fprintf(os.Stderr, "       cat <file> | %s <flags> \n", cmdname)
+		fmt.Fprintln(os.Stderr, "\nOptional flags:")
+		flag.PrintDefaults()
 	}
-	err := lib.ConvertAndPrintFromArgsOrStdin(convert, os.Args[1:])
+
+	flag.Parse()
+
+	err := lib.ConvertAndPrintFromArgsOrStdin(convert, flag.Args())
+	if err != nil {
+		log.Fatalf("%v", err)
+	}
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
