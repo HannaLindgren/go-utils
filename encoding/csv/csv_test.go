@@ -37,7 +37,7 @@ func TestCsvReaderUseCase(t *testing.T) {
 	var source = `country	origLang	orth	exonym	priority	checked	comment
 GBR	eng	The Thames	Themsen	4	true	hepp
 BEL	fre	Bruxelles	Bryssel"	3	false	`
-	var separator = '\t'
+	var separator = "\t"
 	var reader = NewStringReader(source, separator)
 	reader.Strict()
 	var header entry
@@ -77,7 +77,7 @@ func TestCsvReaderUseCaseWithChildren(t *testing.T) {
 GBR	eng	The Thames	Themsen	4	true	hepp
 SWE	swe	Mälaren	Lake Mälaren	1	true	
 BEL	fre	Bruxelles	Bryssel"	3	false	`
-	var separator = '\t'
+	var separator = "\t"
 	var reader = NewStringReader(source, separator)
 	reader.AllowMissingFields()
 	var header entryWithChildren
@@ -110,7 +110,7 @@ func TestCsvReaderWithInvalidHeader(t *testing.T) {
 	var source = `country	origLang	orth	exonym	priority	checked	comments
 GBR	eng	The Thames	Themsen	4	true	hepp
 BEL	fre	Bruxelles	Bryssel	3	false	`
-	var separator = '\t'
+	var separator = "\t"
 	var reader = NewStringReader(source, separator)
 	reader.Strict()
 	var header entry
@@ -125,7 +125,7 @@ func TestCsvReaderWithInvalidCaseHeader(t *testing.T) {
 	var source = `country	origLang	orth	exonym	priority	checked	comment
 GBR	eng	The Thames	Themsen	4	true	hepp
 BEL	fre	Bruxelles	Bryssel	3	false	`
-	var separator = '\t'
+	var separator = "\t"
 	var reader = NewStringReader(source, separator)
 	reader.CaseSensHeader = true
 	if err != nil {
@@ -145,7 +145,7 @@ func TestCsvReaderNonStrictCaseSens(t *testing.T) {
 	var source = `Country	OrigLang	Orth	Exonym	Template	Priority	Checked	Comment
 GBR	eng	The Thames	Themsen	tmpl	4	true	hepp
 BEL	fre	Bruxelles	Bryssel	tmpl	3	false	`
-	var separator = '\t'
+	var separator = "\t"
 	var reader = NewStringReader(source, separator)
 	reader.CaseSensHeader = true
 	reader.AllowUnknownFields()
@@ -178,7 +178,7 @@ func TestCsvReaderNonStrictCaseInsens(t *testing.T) {
 	var source = `country	OrigLang	Orth	Exonym	Priority	Checked	Comment	Template
 GBR	eng	The Thames	Themsen	4	true	hepp	auto_case
 BEL	fre	Bruxelles	Bryssel	3	false		hardwired_cities`
-	var separator = '\t'
+	var separator = "\t"
 	var reader = NewStringReader(source, separator)
 	reader.CaseSensHeader = false
 	reader.AllowUnknownFields()
@@ -212,7 +212,7 @@ func TestCsvReaderNonStrictCaseInsensShortLines(t *testing.T) {
 GBR	eng	The Thames	Themsen	4	true	hepp	auto_case
 BEL	fre	Bruxelles	Bryssel	3	false		hardwired_cities
 FRA	fre	Paris		3	false`
-	var separator = '\t'
+	var separator = "\t"
 	var reader = NewStringReader(source, separator)
 	reader.CaseSensHeader = false
 	reader.AllowUnknownFields()
@@ -247,7 +247,7 @@ func TestCsvReaderWithRequiredFields(t *testing.T) {
 GBR	tmpl2	eng	The Thames	Themsen	true
 BEL	tmpl1	fre	Bruxelles	Bryssel	false
 	tmpl3	fre	Paris		false`
-	var separator = '\t'
+	var separator = "\t"
 	var reader = NewStringReader(source, separator)
 	reader.CaseSensHeader = true
 	reader.AllowMissingFields()
@@ -284,7 +284,7 @@ func ExampleReader_ReadLine_Strict() {
 GBR	eng	The Thames	Themsen	4	true	todo
 BEL	fre	Bruxelles	Bryssel"	3	false	`
 
-	var separator = '\t'
+	var separator = "\t"
 	var reader = NewStringReader(source, separator)
 	reader.Strict()
 	var header entry
@@ -324,7 +324,7 @@ func ExampleReader_ReadLine_AllowOrderMismatch() {
 GBR	eng	The Thames	Themsen	4	true	todo
 BEL	fre	Bruxelles	B"ryssel"	3	false	`
 
-	var separator = '\t'
+	var separator = "\t"
 	var reader = NewStringReader(source, separator)
 	reader.AllowOrderMismatch()
 	var header entry
@@ -364,7 +364,7 @@ func ExampleReader_ReadLine_NonStrict() {
 GBR	eng	The Thames	Themsen	4	tmpl1	todo
 BEL	fre	Bruxelles	Bryssel	3	tmpl2	`
 
-	var separator = '\t'
+	var separator = "\t"
 	var reader = NewStringReader(source, separator)
 	reader.NonStrict()
 	var header entry
@@ -404,7 +404,7 @@ func TestReadLine_StrictButAllowOrderMismatch(t *testing.T) {
 GBR	eng	The Thames	Themsen	4	true	tmpl1	todo
 BEL	fre	Bruxelles	Bryssel"	3	false	tmpl2	`
 
-	var separator = '\t'
+	var separator = "\t"
 	var reader = NewStringReader(source, separator)
 	reader.Strict()
 	reader.AllowOrderMismatch()
@@ -427,7 +427,7 @@ func TestReadLine_NonStrictButDisallowOrderMismatch(t *testing.T) {
 GBR	eng	The Thames	Themsen	4	true	tmpl1	todo
 BEL	fre	Bruxelles	Bryssel"	3	false	tmpl2	`
 
-	var separator = '\t'
+	var separator = "\t"
 	var reader = NewStringReader(source, separator)
 	reader.Strict()
 	reader.AllowUnknownFields()
@@ -460,7 +460,7 @@ func ExampleReader_ReadLine_Strict_Tags() {
 GBR	eng	The Thames	Themsen	4	true	todo
 BEL	fre	Bruxelles	Brysseles	3	false	`
 
-	var separator = '\t'
+	var separator = "\t"
 	var reader = NewStringReader(source, separator)
 	reader.Strict()
 	reader.CaseSensHeader = true
@@ -511,7 +511,7 @@ func ExampleReader_ReadLine_NonStrict_Tags() {
 GBR	eng	The Thames	Themsen	4	true	todox
 BEL	fre	Bruxelles	Brysseles	3	false	`
 
-	var separator = '\t'
+	var separator = "\t"
 	var reader = NewStringReader(source, separator)
 	reader.NonStrict()
 	reader.CaseSensHeader = false

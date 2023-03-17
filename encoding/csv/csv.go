@@ -1,28 +1,33 @@
 package csv
 
 import (
-	"encoding/csv"
 	"fmt"
-	"io"
-	"os"
+	//"io"
 	"reflect"
 	"strconv"
 	"strings"
 
 	"golang.org/x/exp/maps"
 	"golang.org/x/exp/slices"
+
+	io "github.com/HannaLindgren/go-utils/io"
 )
 
 type line []string
 
 // Reader struct
 type Reader struct {
-	inner          *csv.Reader
+	//inner          *csv.Reader
 	CaseSensHeader bool
+	separator      string
+
+	index  int
+	source []string
 
 	allowMissingFields bool
 	allowUnknownFields bool
 	allowOrderMismatch bool
+	acceptShortLines   bool
 	requiredFields     map[string]bool
 
 	inputHeaderSize        int
@@ -66,7 +71,8 @@ func (r *Reader) AllowMissingFields() {
 
 // if set, the parser will accept input lines with fewer columns than the header (is the last column is empty, some converters will skip it, hence this method could be useful)
 func (r *Reader) AcceptShortLines() {
-	r.inner.FieldsPerRecord = -1
+	//r.inner.FieldsPerRecord = -1
+	r.acceptShortLines = true
 }
 
 // if set, the reader accepts headers missing any fields except for these
@@ -81,28 +87,56 @@ func (r *Reader) RequiredFields(fields ...string) {
 	r.requiredFields = m
 }
 
+func (r *Reader) innerRead() (bool, line) {
+	if r.index >= len(r.source) {
+		return false, line{}
+	}
+	s := r.source[r.index]
+	line := strings.Split(s, r.separator)
+	r.index++
+	return true, line
+}
+
 // ReadLine reads the next line from the input data
 // Returns bool, error
 // - bool is true if a line was read; false if we were at the end of the file
 func (r *Reader) ReadLine(v any) (bool, error) {
-	fs, err := r.inner.Read()
-	if err != nil {
-		if err == io.EOF {
-			return false, nil
-		}
-		return false, fmt.Errorf("failed to read line %v : %v", strings.Join(fs, string(r.inner.Comma)), err)
+	hasNext, fs := r.innerRead()
+	if !hasNext {
+		return false, nil
 	}
-	err = r.Unmarshal(fs, v)
+	err := r.Unmarshal(fs, v)
 	return true, err
+
 }
 
 func (r *Reader) ReadHeader(v any) error {
-	header, err := r.inner.Read()
-	if err != nil {
-		return err
+	hasNext, header := r.innerRead()
+	if !hasNext {
+		return fmt.Errorf("No header in input")
 	}
 	return r.validateHeader(header, v)
 }
+
+// func (r *Reader) ReadLine(v any) (bool, error) {
+// 	fs, err := r.inner.Read()
+// 	if err != nil {
+// 		if err == io.EOF {
+// 			return false, nil
+// 		}
+// 		return false, fmt.Errorf("failed to read line %v : %v", strings.Join(fs, string(r.inner.Comma)), err)
+// 	}
+// 	err = r.Unmarshal(fs, v)
+// 	return true, err
+// }
+
+// func (r *Reader) ReadHeader(v any) error {
+// 	header, err := r.inner.Read()
+// 	if err != nil {
+// 		return err
+// 	}
+// 	return r.validateHeader(header, v)
+// }
 
 func (r *Reader) validateHeader(header line, v any) error {
 	r.inputHeaderSize = len(header)
@@ -205,24 +239,27 @@ func (r *Reader) validateHeader(header line, v any) error {
 	return nil
 }
 
-func NewReader(source io.Reader, separator rune) *Reader {
-	r := Reader{inner: csv.NewReader(source)}
-	r.inner.Comma = separator
+func NewReader(source []string, separator string) *Reader {
+	//r := Reader{inner: csv.NewReader(source)}
+	r := Reader{source: source}
+	r.separator = separator
+	//r.inner.Comma = separator
 	//r.inner.LazyQuotes = true
-	r.inner.LazyQuotes = false
 	return &r
 }
 
-func NewStringReader(source string, separator rune) *Reader {
-	return NewReader(strings.NewReader(source), separator)
+func NewStringReader(source string, separator string) *Reader {
+	lines := strings.Split(source, "\n")
+	return NewReader(lines, separator)
 }
 
-func NewFileReader(fName string, separator rune) (*Reader, error) {
-	file, err := os.Open(fName)
+func NewFileReader(fName string, separator string) (*Reader, error) {
+	lines, err := io.ReadFileToLines(fName)
+	//file, err := os.Open(fName)
 	if err != nil {
 		return nil, err
 	}
-	return NewReader(file, separator), nil
+	return NewReader(lines, separator), nil
 }
 
 func (r *Reader) Unmarshal(line []string, v any) error {
@@ -230,10 +267,10 @@ func (r *Reader) Unmarshal(line []string, v any) error {
 		return fmt.Errorf("Header is not initialized")
 	}
 	struc := reflect.ValueOf(v).Elem()
-	if r.inner.FieldsPerRecord > 0 && r.inputHeaderSize != len(line) {
+	if !r.acceptShortLines && r.inputHeaderSize != len(line) {
 		return &fieldMismatch{r.inputHeaderSize, len(line)}
 	}
-	if r.inner.FieldsPerRecord < 1 {
+	if r.acceptShortLines {
 		for len(line) < struc.NumField() {
 			line = append(line, "")
 		}
@@ -259,7 +296,7 @@ func (r *Reader) Unmarshal(line []string, v any) error {
 			f.SetString(val)
 		case "int":
 			if val == "" {
-				return fmt.Errorf("empty int field %s for input line %v", name, strings.Join(line, string(r.inner.Comma)))
+				return fmt.Errorf("empty int field %s for input line %v", name, strings.Join(line, string(r.separator)))
 			}
 			ival, err := strconv.ParseInt(val, 10, 0)
 			if err != nil {
@@ -268,7 +305,7 @@ func (r *Reader) Unmarshal(line []string, v any) error {
 			f.SetInt(ival)
 		case "bool":
 			if val == "" {
-				return fmt.Errorf("empty boolean field %s for input line %v", name, strings.Join(line, string(r.inner.Comma)))
+				return fmt.Errorf("empty boolean field %s for input line %v", name, strings.Join(line, string(r.separator)))
 			}
 			bval, err := strconv.ParseBool(val)
 			if err != nil {
