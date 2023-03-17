@@ -322,7 +322,7 @@ func ExampleReader_ReadLine_AllowOrderMismatch() {
 	var err error
 	var source = `origLang	country	orth	exonym	priority	checked	comment
 GBR	eng	The Thames	Themsen	4	true	todo
-BEL	fre	Bruxelles	Bryssel"	3	false	`
+BEL	fre	Bruxelles	B"ryssel"	3	false	`
 
 	var separator = '\t'
 	var reader = NewStringReader(source, separator)
@@ -355,7 +355,7 @@ BEL	fre	Bruxelles	Bryssel"	3	false	`
 	}
 
 	// Output: {"Country":"eng","OrigLang":"GBR","Orth":"The Thames","Exonym":"Themsen","Priority":4,"Checked":true,"Comment":"todo"}
-	// {"Country":"fre","OrigLang":"BEL","Orth":"Bruxelles","Exonym":"Bryssel\"","Priority":3,"Checked":false,"Comment":""}
+	// {"Country":"fre","OrigLang":"BEL","Orth":"Bruxelles","Exonym":"B\"ryssel\"","Priority":3,"Checked":false,"Comment":""}
 }
 
 func ExampleReader_ReadLine_NonStrict() {
@@ -442,4 +442,106 @@ BEL	fre	Bruxelles	Bryssel"	3	false	tmpl2	`
 	} else {
 		t.Errorf("expected error here")
 	}
+}
+
+type entryWithTagsCaseSens struct {
+	Country  string `csv:"country"`
+	OrigLang string `csv:"origLang"`
+	Orth     string `csv:"orth"`
+	Exonym   string `csv:"exonym"`
+	Priority int    `csv:"Priority"`
+	Checked  bool   `csv:"checked"`
+	Comment  string `csv:"translator comment"`
+}
+
+func ExampleReader_ReadLine_Strict_Tags() {
+	var err error
+	var source = `country	origLang	orth	exonym	Priority	checked	translator comment
+GBR	eng	The Thames	Themsen	4	true	todo
+BEL	fre	Bruxelles	Brysseles	3	false	`
+
+	var separator = '\t'
+	var reader = NewStringReader(source, separator)
+	reader.Strict()
+	reader.CaseSensHeader = true
+	var header entryWithTagsCaseSens
+	err = reader.ReadHeader(&header)
+	if err != nil {
+		log.Printf("Got error from ReadHeader: %v", err)
+		return
+	}
+	res := []entryWithTagsCaseSens{}
+	for {
+		var e entryWithTagsCaseSens
+		hasNext, err := reader.ReadLine(&e)
+		if err != nil {
+			log.Printf("Got error from Read: %v", err)
+			return
+		}
+		if !hasNext {
+			break
+		}
+		res = append(res, e)
+	}
+	for _, e := range res {
+		bts, err := json.Marshal(e)
+		if err != nil {
+			log.Printf("Got error from json.Marshal: %v", err)
+		}
+		fmt.Println(string(bts))
+	}
+
+	// Output: {"Country":"GBR","OrigLang":"eng","Orth":"The Thames","Exonym":"Themsen","Priority":4,"Checked":true,"Comment":"todo"}
+	// {"Country":"BEL","OrigLang":"fre","Orth":"Bruxelles","Exonym":"Brysseles","Priority":3,"Checked":false,"Comment":""}
+}
+
+type entryWithTagsCaseInsens struct {
+	Country  string `csv:"country"`
+	OrigLang string `csv:"origLang"`
+	Orth     string `csv:"orth"`
+	Exonym   string `csv:"exonym"`
+	Priority int    `csv:"Priority"`
+	Checked  bool   `csv:"checked"`
+	Comment  string `csv:"translator Comment"`
+}
+
+func ExampleReader_ReadLine_NonStrict_Tags() {
+	var err error
+	var source = `country	OrigLang	orth	exonym	Priority	checked	translator comment
+GBR	eng	The Thames	Themsen	4	true	todox
+BEL	fre	Bruxelles	Brysseles	3	false	`
+
+	var separator = '\t'
+	var reader = NewStringReader(source, separator)
+	reader.NonStrict()
+	reader.CaseSensHeader = false
+	var header entryWithTagsCaseInsens
+	err = reader.ReadHeader(&header)
+	if err != nil {
+		log.Printf("Got error from ReadHeader: %v", err)
+		return
+	}
+	res := []entryWithTagsCaseInsens{}
+	for {
+		var e entryWithTagsCaseInsens
+		hasNext, err := reader.ReadLine(&e)
+		if err != nil {
+			log.Printf("Got error from Read: %v", err)
+			return
+		}
+		if !hasNext {
+			break
+		}
+		res = append(res, e)
+	}
+	for _, e := range res {
+		bts, err := json.Marshal(e)
+		if err != nil {
+			log.Printf("Got error from json.Marshal: %v", err)
+		}
+		fmt.Println(string(bts))
+	}
+
+	// Output: {"Country":"GBR","OrigLang":"eng","Orth":"The Thames","Exonym":"Themsen","Priority":4,"Checked":true,"Comment":"todox"}
+	// {"Country":"BEL","OrigLang":"fre","Orth":"Bruxelles","Exonym":"Brysseles","Priority":3,"Checked":false,"Comment":""}
 }

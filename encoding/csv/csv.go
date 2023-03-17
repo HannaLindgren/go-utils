@@ -113,7 +113,12 @@ func (r *Reader) validateHeader(header line, v any) error {
 			return &fieldMismatch{s.NumField(), len(header)}
 		}
 		for i := 0; i < s.NumField(); i++ {
-			ss := s.Type().Field(i).Name
+			f := s.Type().Field(i)
+			ss := f.Name
+			tag := f.Tag.Get("csv")
+			if tag != "" {
+				ss = tag
+			}
 			hs := header[i]
 			if !r.CaseSensHeader {
 				hs = strings.ToLower(hs)
@@ -136,9 +141,14 @@ func (r *Reader) validateHeader(header line, v any) error {
 		}
 		structFields := map[string]int{}
 		for i := 0; i < s.NumField(); i++ {
-			ss := s.Type().Field(i).Name
+			f := s.Type().Field(i)
+			ss := f.Name
+			tag := f.Tag.Get("csv")
 			if !r.CaseSensHeader {
 				ss = strings.ToLower(ss)
+			}
+			if tag != "" {
+				ss = tag
 			}
 			structFields[ss] = i
 			hIndex, inHeader := headerFields[ss]
@@ -198,7 +208,8 @@ func (r *Reader) validateHeader(header line, v any) error {
 func NewReader(source io.Reader, separator rune) *Reader {
 	r := Reader{inner: csv.NewReader(source)}
 	r.inner.Comma = separator
-	r.inner.LazyQuotes = true
+	//r.inner.LazyQuotes = true
+	r.inner.LazyQuotes = false
 	return &r
 }
 
@@ -229,7 +240,12 @@ func (r *Reader) Unmarshal(line []string, v any) error {
 	}
 	for i := 0; i < struc.NumField(); i++ {
 		f := struc.Field(i)
-		name := struc.Type().Field(i).Name
+		fx := struc.Type().Field(i)
+		name := fx.Name
+		tag := fx.Tag.Get("csv")
+		if tag != "" {
+			name = tag
+		}
 		if !r.CaseSensHeader {
 			name = strings.ToLower(name)
 		}
