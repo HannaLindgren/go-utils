@@ -90,12 +90,12 @@ BEL	fre	Bruxelles	Bryssel"	3	false	`
 	for {
 		var entry entryWithChildren
 		hasNext, err := reader.ReadLine(&entry)
-		if !hasNext {
-			break
-		}
 		if err != nil {
 			t.Errorf("Got error from Read: %v", err)
 			return
+		}
+		if !hasNext {
+			break
 		}
 		nEntries++
 	}
@@ -158,12 +158,12 @@ BEL	fre	Bruxelles	Bryssel	tmpl	3	false	`
 	for {
 		var entry entry
 		hasNext, err := reader.ReadLine(&entry)
-		if !hasNext {
-			break
-		}
 		if err != nil {
 			t.Errorf("Got error from Read: %v", err)
 			return
+		}
+		if !hasNext {
+			break
 		}
 		// bts, err := json.Marshal(entry)
 		// if err != nil {
@@ -191,12 +191,12 @@ BEL	fre	Bruxelles	Bryssel	3	false		hardwired_cities`
 	for {
 		var entry entry
 		hasNext, err := reader.ReadLine(&entry)
-		if !hasNext {
-			break
-		}
 		if err != nil {
 			t.Errorf("Got error from Read: %v", err)
 			return
+		}
+		if !hasNext {
+			break
 		}
 		// bts, err := json.Marshal(entry)
 		// if err != nil {
@@ -226,12 +226,12 @@ FRA	fre	Paris		3	false`
 	for {
 		var entry entry
 		hasNext, err := reader.ReadLine(&entry)
-		if !hasNext {
-			break
-		}
 		if err != nil {
 			t.Errorf("Got error from Read: %v", err)
 			return
+		}
+		if !hasNext {
+			break
 		}
 		// bts, err := json.Marshal(entry)
 		// if err != nil {
@@ -263,12 +263,12 @@ BEL	tmpl1	fre	Bruxelles	Bryssel	false
 	for {
 		var entry entry
 		hasNext, err := reader.ReadLine(&entry)
-		if !hasNext {
-			break
-		}
 		if err != nil {
 			t.Errorf("Got error from Read: %v", err)
 			return
+		}
+		if !hasNext {
+			break
 		}
 		bts, err := json.Marshal(entry)
 		if err != nil {
@@ -297,12 +297,12 @@ BEL	fre	Bruxelles	Bryssel"	3	false	`
 	for {
 		var e entry
 		hasNext, err := reader.ReadLine(&e)
-		if !hasNext {
-			break
-		}
 		if err != nil {
 			log.Printf("Got error from Read: %v", err)
 			return
+		}
+		if !hasNext {
+			break
 		}
 		res = append(res, e)
 	}
@@ -337,12 +337,12 @@ BEL	fre	Bruxelles	Bryssel"	3	false	`
 	for {
 		var e entry
 		hasNext, err := reader.ReadLine(&e)
-		if !hasNext {
-			break
-		}
 		if err != nil {
 			log.Printf("Got error from Read: %v", err)
 			return
+		}
+		if !hasNext {
+			break
 		}
 		res = append(res, e)
 	}
@@ -377,12 +377,12 @@ BEL	fre	Bruxelles	Bryssel	3	tmpl2	`
 	for {
 		var e entry
 		hasNext, err := reader.ReadLine(&e)
-		if !hasNext {
-			break
-		}
 		if err != nil {
 			log.Printf("Got error from Read: %v", err)
 			return
+		}
+		if !hasNext {
+			break
 		}
 		res = append(res, e)
 	}
