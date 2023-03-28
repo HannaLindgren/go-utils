@@ -88,14 +88,14 @@ func convertFile(xlsxFile, newExt string) (string, int, error) {
 	}
 	defer outWriter.Close()
 
-	for _, fs := range lines {
+	for i, fs := range lines {
 		for _, f := range fs {
 			if strings.Contains(f, fieldSep) {
-				msg := fmt.Sprintf("Input field <%s> contains field sep", f)
+				msg := fmt.Sprintf("Input field <%s> on line %v contains field sep", f, i+1)
 				panic(msg)
 			}
 			if strings.Contains(f, "\n") {
-				msg := fmt.Sprintf("Input field <%s> contains newline", f)
+				msg := fmt.Sprintf("Input field <%s> on line %v contains newline", f, i+1)
 				panic(msg)
 			}
 		}

@@ -159,7 +159,7 @@ func (r *Reader) validateHeader(header line, v any) error {
 				ss = strings.ToLower(ss)
 			}
 			if ss != hs {
-				return fmt.Errorf("struct field does not match header field. Expected %v found %v", hs, ss)
+				return fmt.Errorf("struct field does not match header field. Expected %v found %v", ss, hs)
 			}
 			r.headerStructableFields[hs] = i
 		}
