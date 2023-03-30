@@ -10,40 +10,48 @@ import (
 
 	// https://github.com/qax-os/excelize
 	"github.com/xuri/excelize/v2"
+	"golang.org/x/exp/maps"
+	"golang.org/x/exp/slices"
 
 	hio "github.com/HannaLindgren/go-utils/io"
 )
 
-func readFile(f string) ([][]string, error) {
+func readFile(f string) ([][]string, string, error) {
 	res := [][]string{}
 	x, err := excelize.OpenFile(f)
 	if err != nil {
-		return res, fmt.Errorf("failed to open file : %v", err)
+		return res, "", fmt.Errorf("failed to open file : %v", err)
 	}
 
 	sheets := x.GetSheetList()
 	var selectedSheet string
-	if *sheetName == "" {
+	if len(sheetNames) == 0 {
 		if len(sheets) != 1 {
-			return res, fmt.Errorf("multiple sheets found in %s, use -sheet flag to select which one to export: %v", f, sheets)
+			return res, "", fmt.Errorf("multiple sheets found in %s, use -sheets flag to select which ones to export: %v", f, sheets)
 		}
 		selectedSheet = sheets[0]
 	} else {
+		var selectedSheets = []string{}
 		for _, sheet := range sheets {
-			if sheet == *sheetName {
-				selectedSheet = sheet
-				break
+			if sheetNames[sheet] {
+				selectedSheets = append(selectedSheets, sheet)
 			}
 		}
-		if selectedSheet == "" {
-			return res, fmt.Errorf("invalid sheet name %s, found: %v", *sheetName, sheets)
+		if len(selectedSheets) == 0 {
+			requestedSheetNames := maps.Keys(sheetNames)
+			slices.Sort(requestedSheetNames)
+			return res, "", fmt.Errorf("requested sheets %v, found: %v", requestedSheetNames, sheets)
 		}
+		if len(selectedSheets) > 1 {
+			return res, "", fmt.Errorf("cannot select more than one sheet per file, found: %v", selectedSheets)
+		}
+		selectedSheet = selectedSheets[0]
 	}
 	//fmt.Fprintf(os.Stderr, "Using sheet %s\n", selectedSheet)
 
 	rows, err := x.GetRows(selectedSheet)
 	if err != nil {
-		return res, fmt.Errorf("failed to read rows : %v", err)
+		return res, "", fmt.Errorf("failed to read rows : %v", err)
 	}
 	var firstLineLen int
 	for ri, row := range rows {
@@ -61,30 +69,30 @@ func readFile(f string) ([][]string, error) {
 		}
 		res = append(res, line)
 	}
-	return res, nil
+	return res, selectedSheet, nil
 }
 
-func convertFile(xlsxFile, newExt string) (string, int, error) {
+func convertFile(xlsxFile, newExt string) (string, string, int, error) {
 
 	var nLines int
 
-	lines, err := readFile(xlsxFile)
+	lines, selectedSheet, err := readFile(xlsxFile)
 	if err != nil {
-		return "", 0, fmt.Errorf("read failed : %v", err)
+		return "", "", 0, fmt.Errorf("read failed : %v", err)
 	}
 	nLines = len(lines)
 
 	ext := strings.TrimPrefix(filepath.Ext(xlsxFile), ".")
 	if ext != "xlsx" {
-		return "", nLines, fmt.Errorf("input file has invalid extension %s", xlsxFile)
+		return "", "", nLines, fmt.Errorf("input file has invalid extension %s", xlsxFile)
 	}
 	outFile := fmt.Sprintf("%s.%s", hio.RemoveFileExtension(xlsxFile), newExt)
 	if path.Base(outFile) == path.Base(xlsxFile) {
-		return "", nLines, fmt.Errorf("input and output file are have the same extension: %s", xlsxFile)
+		return "", "", nLines, fmt.Errorf("input and output file are have the same extension: %s", xlsxFile)
 	}
 	outWriter, err := os.Create(outFile)
 	if err != nil {
-		return "", nLines, fmt.Errorf("Failed to create file: %v", err)
+		return "", "", nLines, fmt.Errorf("Failed to create file: %v", err)
 	}
 	defer outWriter.Close()
 
@@ -103,19 +111,19 @@ func convertFile(xlsxFile, newExt string) (string, int, error) {
 		outWriter.WriteString(l)
 		outWriter.WriteString("\n")
 	}
-	return outFile, nLines, nil
+	return outFile, selectedSheet, nLines, nil
 }
 
 const cmdname = "xlsx2csv"
 
 // flags
 var fieldSep string
-var sheetName *string
+var sheetNames = map[string]bool{}
 
 func main() {
 
 	fieldSepFlag := flag.String("sep", "<tab>", "field `separator`")
-	sheetName = flag.String("sheet", "", "Sheet `name` to export")
+	sheetNamesFlag := flag.String("sheets", "", "Sheet `names` to export (comma-separated list)")
 	ext := flag.String("ext", "csv", "output `extension`")
 
 	var printUsage = func() {
@@ -156,15 +164,19 @@ func main() {
 	if fieldSep == "<tab>" {
 		fieldSep = "\t"
 	}
+	for _, s := range strings.Split(*sheetNamesFlag, ",") {
+		s = strings.TrimSpace(s)
+		sheetNames[s] = true
+	}
 
 	for _, f := range files {
-		outFile, n, err := convertFile(f, *ext)
+		outFile, selectedSheet, n, err := convertFile(f, *ext)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Convert failed: %v\n", err)
 			os.Exit(1)
 		}
-		if *sheetName != "" {
-			fmt.Printf("%s [Sheet:%s] => %s (%v lines)\n", f, *sheetName, outFile, n)
+		if selectedSheet != "" {
+			fmt.Printf("%s [%s] => %s (%v lines)\n", f, selectedSheet, outFile, n)
 		} else {
 			fmt.Printf("%s => %s (%v lines)\n", f, outFile, n)
 		}
