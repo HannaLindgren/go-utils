@@ -164,9 +164,11 @@ func main() {
 	if fieldSep == "<tab>" {
 		fieldSep = "\t"
 	}
-	for _, s := range strings.Split(*sheetNamesFlag, ",") {
-		s = strings.TrimSpace(s)
-		sheetNames[s] = true
+	if len(*sheetNamesFlag) > 0 {
+		for _, s := range strings.Split(*sheetNamesFlag, ",") {
+			s = strings.TrimSpace(s)
+			sheetNames[s] = true
+		}
 	}
 
 	for _, f := range files {
