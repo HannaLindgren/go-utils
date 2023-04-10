@@ -6,7 +6,7 @@ require (
 	github.com/gorilla/mux v1.8.0
 	//github.com/xuri/excelize/v2 v2.6.1
 	github.com/xuri/excelize/v2 v2.7.0
-	golang.org/x/text v0.7.0
+	golang.org/x/text v0.9.0
 )
 
 require golang.org/x/exp v0.0.0-20230202163644-54bba9f4231b
