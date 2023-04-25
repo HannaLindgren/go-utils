@@ -16,6 +16,31 @@ import (
 	hio "github.com/HannaLindgren/go-utils/io"
 )
 
+func readSheet(x *excelize.File, sheet string) ([][]string, error) {
+	res := [][]string{}
+	rows, err := x.GetRows(sheet)
+	if err != nil {
+		return res, fmt.Errorf("failed to read rows : %v", err)
+	}
+	var firstLineLen int
+	for ri, row := range rows {
+		line := []string{}
+		for _, cell := range row {
+			line = append(line, strings.TrimSuffix(cell, "\n")) // trim final newline if it exists
+		}
+		if ri == 0 {
+			firstLineLen = len(line)
+		}
+		if ri > 0 {
+			for len(line) < firstLineLen {
+				line = append(line, "")
+			}
+		}
+		res = append(res, line)
+	}
+	return res, nil
+}
+
 func readFile(f string) ([][]string, string, error) {
 	res := [][]string{}
 	x, err := excelize.OpenFile(f)
@@ -49,25 +74,9 @@ func readFile(f string) ([][]string, string, error) {
 	}
 	//fmt.Fprintf(os.Stderr, "Using sheet %s\n", selectedSheet)
 
-	rows, err := x.GetRows(selectedSheet)
+	res, err = readSheet(x, selectedSheet)
 	if err != nil {
-		return res, "", fmt.Errorf("failed to read rows : %v", err)
-	}
-	var firstLineLen int
-	for ri, row := range rows {
-		line := []string{}
-		for _, cell := range row {
-			line = append(line, strings.TrimSuffix(cell, "\n")) // trim final newline if it exists
-		}
-		if ri == 0 {
-			firstLineLen = len(line)
-		}
-		if ri > 0 {
-			for len(line) < firstLineLen {
-				line = append(line, "")
-			}
-		}
-		res = append(res, line)
+		return res, "", err
 	}
 	return res, selectedSheet, nil
 }
@@ -123,7 +132,7 @@ var sheetNames = map[string]bool{}
 func main() {
 
 	fieldSepFlag := flag.String("sep", "<tab>", "field `separator`")
-	sheetNamesFlag := flag.String("sheets", "", "Sheet `names` to export (comma-separated list)")
+	sheetNamesFlag := flag.String("sheets", "", "Sheet `names` to export (comma-separated list, use 'all' to convert all sheets)")
 	ext := flag.String("ext", "csv", "output `extension`")
 
 	var printUsage = func() {
@@ -131,7 +140,7 @@ func main() {
 		fmt.Fprintln(os.Stderr)
 		fmt.Fprintf(os.Stderr, "Usage: %s <files>\n", cmdname)
 		fmt.Fprintln(os.Stderr, "       OR")
-		fmt.Fprintf(os.Stderr, "       cat <files> | %s\n", cmdname)
+		fmt.Fprintf(os.Stderr, "       ls <files> | %s\n", cmdname)
 		fmt.Fprintln(os.Stderr, "\nOptional flags:")
 		flag.PrintDefaults()
 	}
@@ -165,10 +174,14 @@ func main() {
 		fieldSep = "\t"
 	}
 	if len(*sheetNamesFlag) > 0 {
+		// if strings.ToLower(*sheetNamesFlag) == "all" {
+		// 	allSheets = true
+		// } else {
 		for _, s := range strings.Split(*sheetNamesFlag, ",") {
 			s = strings.TrimSpace(s)
 			sheetNames[s] = true
 		}
+		// }
 	}
 
 	for _, f := range files {
