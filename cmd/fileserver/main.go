@@ -13,7 +13,7 @@ func main() {
 	directory := flag.String("d", "", "the directory of static file to host")
 
 	flag.Usage = func() {
-		fmt.Fprint(os.Stderr, "Usage: go run main.go <port> <directory>\n")
+		//fmt.Fprint(os.Stderr, "Usage: fileserver\n")
 		fmt.Fprint(os.Stderr, "Flags:\n")
 		flag.PrintDefaults()
 	}
