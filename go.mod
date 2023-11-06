@@ -3,7 +3,7 @@ module github.com/HannaLindgren/go-utils
 go 1.20
 
 require (
-	github.com/gorilla/mux v1.8.0
+	github.com/gorilla/mux v1.8.1
 	//github.com/xuri/excelize/v2 v2.6.1
 	github.com/xuri/excelize/v2 v2.7.1
 	golang.org/x/text v0.13.0
