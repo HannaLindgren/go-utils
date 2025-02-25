@@ -5,7 +5,7 @@ import (
 	"regexp"
 )
 
-func ExampleTokenizer1() {
+func ExampleRegexpTokenizer_t1() {
 	tk := RegexpTokenizer{delimRE: regexp.MustCompile(`[ .,/()&#!?]+`)}
 	for _, w := range tk.Split("") {
 		fmt.Printf("<%s>\n", w)
@@ -13,7 +13,7 @@ func ExampleTokenizer1() {
 	// Output:
 }
 
-func ExampleTokenizer2() {
+func ExampleRegexpTokenizer_t2() {
 	tk := RegexpTokenizer{delimRE: regexp.MustCompile(`[ .,/()&#!?]+`)}
 	for _, w := range tk.Split(" ") {
 		fmt.Printf("<%s>\n", w)
@@ -22,7 +22,7 @@ func ExampleTokenizer2() {
 	// < >
 }
 
-func ExampleTokenizer3() {
+func ExampleRegexpTokenizer_t3() {
 	tk := RegexpTokenizer{delimRE: regexp.MustCompile(`[ .,/()&#!?]+`)}
 	for _, w := range tk.Split("hej du") {
 		fmt.Printf("<%s>\n", w)
@@ -33,7 +33,7 @@ func ExampleTokenizer3() {
 	// <du>
 }
 
-func ExampleTokenizer4() {
+func ExampleRegexpTokenizer_t4() {
 	tk := RegexpTokenizer{delimRE: regexp.MustCompile(`[ .,/()&#!?]+`)}
 	for _, w := range tk.Split(" -s") {
 		fmt.Printf("<%s>\n", w)
@@ -43,7 +43,7 @@ func ExampleTokenizer4() {
 	// <-s>
 }
 
-func ExampleTokenizer5() {
+func ExampleRegexpTokenizer_t5() {
 	tk := RegexpTokenizer{delimRE: regexp.MustCompile(`[ .,/()&#!?]+`)}
 	for _, w := range tk.Split("jag-är!& -en liten apa") {
 		fmt.Printf("<%s>\n", w)
@@ -59,7 +59,7 @@ func ExampleTokenizer5() {
 	// <apa>
 }
 
-func ExampleTokenizer6() {
+func ExampleRegexpTokenizer_t6() {
 	tk := RegexpTokenizer{delimRE: regexp.MustCompile(`[ .,/()&#!?]+`)}
 	for _, w := range tk.Split("jag-är!& -en liten apa!") {
 		fmt.Printf("<%s>\n", w)

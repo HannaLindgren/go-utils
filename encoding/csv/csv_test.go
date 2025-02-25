@@ -278,7 +278,7 @@ BEL	tmpl1	fre	Bruxelles	Bryssel	false
 	}
 }
 
-func ExampleReader_ReadLine_Strict() {
+func ExampleReader_ReadLine_strict() {
 	var err error
 	var source = `country	origLang	orth	exonym	priority	checked	comment
 GBR	eng	The Thames	Themsen	4	true	todo
@@ -318,7 +318,7 @@ BEL	fre	Bruxelles	Bryssel"	3	false	`
 	// {"Country":"BEL","OrigLang":"fre","Orth":"Bruxelles","Exonym":"Bryssel\"","Priority":3,"Checked":false,"Comment":""}
 }
 
-func ExampleReader_ReadLine_AllowOrderMismatch() {
+func ExampleReader_ReadLine_allowOrderMismatch() {
 	var err error
 	var source = `origLang	country	orth	exonym	priority	checked	comment
 GBR	eng	The Thames	Themsen	4	true	todo
@@ -358,7 +358,7 @@ BEL	fre	Bruxelles	B"ryssel"	3	false	`
 	// {"Country":"fre","OrigLang":"BEL","Orth":"Bruxelles","Exonym":"B\"ryssel\"","Priority":3,"Checked":false,"Comment":""}
 }
 
-func ExampleReader_ReadLine_NonStrict() {
+func ExampleReader_ReadLine_nonStrict() {
 	var err error
 	var source = `origLang	country	orth	exonym	priority	template	comment
 GBR	eng	The Thames	Themsen	4	tmpl1	todo
@@ -398,7 +398,7 @@ BEL	fre	Bruxelles	Bryssel	3	tmpl2	`
 	// {"Country":"fre","OrigLang":"BEL","Orth":"Bruxelles","Exonym":"Bryssel","Priority":3,"Checked":false,"Comment":""}
 }
 
-func TestReadLine_StrictButAllowOrderMismatch(t *testing.T) {
+func TestReadLine_strictButAllowOrderMismatch(t *testing.T) {
 	var err error
 	var source = `origLang	country	orth	exonym	priority	checked	template	comment
 GBR	eng	The Thames	Themsen	4	true	tmpl1	todo
@@ -421,7 +421,7 @@ BEL	fre	Bruxelles	Bryssel"	3	false	tmpl2	`
 	}
 }
 
-func TestReadLine_NonStrictButDisallowOrderMismatch(t *testing.T) {
+func TestReadLine_nonStrictButDisallowOrderMismatch(t *testing.T) {
 	var err error
 	var source = `origLang	country	orth	exonym	priority	checked	template	comment
 GBR	eng	The Thames	Themsen	4	true	tmpl1	todo
@@ -454,7 +454,7 @@ type entryWithTagsCaseSens struct {
 	Comment  string `csv:"translator comment"`
 }
 
-func ExampleReader_ReadLine_Strict_Tags() {
+func ExampleReader_ReadLine_strict_Tags() {
 	var err error
 	var source = `country	origLang	orth	exonym	Priority	checked	translator comment
 GBR	eng	The Thames	Themsen	4	true	todo
