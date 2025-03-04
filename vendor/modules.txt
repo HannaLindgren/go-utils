@@ -7,16 +7,16 @@ github.com/mohae/deepcopy
 # github.com/richardlehane/mscfb v1.0.4
 ## explicit
 github.com/richardlehane/mscfb
-# github.com/richardlehane/msoleps v1.0.3
+# github.com/richardlehane/msoleps v1.0.4
 ## explicit
 github.com/richardlehane/msoleps/types
-# github.com/xuri/efp v0.0.0-20220603152613-6918739fd470
+# github.com/xuri/efp v0.0.0-20240408161823-9ad904a10d6d
 ## explicit; go 1.11
 github.com/xuri/efp
-# github.com/xuri/excelize/v2 v2.7.1
-## explicit; go 1.16
+# github.com/xuri/excelize/v2 v2.9.0
+## explicit; go 1.18
 github.com/xuri/excelize/v2
-# github.com/xuri/nfp v0.0.0-20220409054826-5e722a1d9e22
+# github.com/xuri/nfp v0.0.0-20240318013403-ab9948c2c4a7
 ## explicit; go 1.15
 github.com/xuri/nfp
 # golang.org/x/crypto v0.31.0
@@ -35,6 +35,7 @@ golang.org/x/net/html/atom
 golang.org/x/net/html/charset
 # golang.org/x/text v0.22.0
 ## explicit; go 1.18
+golang.org/x/text/cases
 golang.org/x/text/encoding
 golang.org/x/text/encoding/charmap
 golang.org/x/text/encoding/htmlindex
