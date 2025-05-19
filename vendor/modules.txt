@@ -1,25 +1,25 @@
 # github.com/gorilla/mux v1.8.0
 ## explicit; go 1.12
 github.com/gorilla/mux
-# github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826
-## explicit
-github.com/mohae/deepcopy
 # github.com/richardlehane/mscfb v1.0.4
 ## explicit
 github.com/richardlehane/mscfb
 # github.com/richardlehane/msoleps v1.0.4
 ## explicit
 github.com/richardlehane/msoleps/types
-# github.com/xuri/efp v0.0.0-20240408161823-9ad904a10d6d
+# github.com/tiendc/go-deepcopy v1.6.0
+## explicit; go 1.18
+github.com/tiendc/go-deepcopy
+# github.com/xuri/efp v0.0.1
 ## explicit; go 1.11
 github.com/xuri/efp
-# github.com/xuri/excelize/v2 v2.9.0
-## explicit; go 1.18
+# github.com/xuri/excelize/v2 v2.9.1
+## explicit; go 1.23.0
 github.com/xuri/excelize/v2
-# github.com/xuri/nfp v0.0.0-20240318013403-ab9948c2c4a7
+# github.com/xuri/nfp v0.0.1
 ## explicit; go 1.15
 github.com/xuri/nfp
-# golang.org/x/crypto v0.36.0
+# golang.org/x/crypto v0.38.0
 ## explicit; go 1.23.0
 golang.org/x/crypto/md4
 golang.org/x/crypto/ripemd160
@@ -28,7 +28,7 @@ golang.org/x/crypto/ripemd160
 golang.org/x/exp/constraints
 golang.org/x/exp/maps
 golang.org/x/exp/slices
-# golang.org/x/net v0.38.0
+# golang.org/x/net v0.40.0
 ## explicit; go 1.23.0
 golang.org/x/net/html
 golang.org/x/net/html/atom
