@@ -1,11 +1,11 @@
 module github.com/HannaLindgren/go-utils
 
-go 1.23.0
+go 1.24.0
 
 require (
 	github.com/gorilla/mux v1.8.0
 	//github.com/xuri/excelize/v2 v2.6.1
-	golang.org/x/text v0.25.0
+	golang.org/x/text v0.29.0
 )
 
 require (
