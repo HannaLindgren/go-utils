@@ -313,7 +313,7 @@ func (r *Reader) Unmarshal(line []string, v any) error {
 			}
 			f.SetBool(bval)
 		default:
-			return fmt.Errorf("unsupported type: " + f.Type().String())
+			return fmt.Errorf("unsupported type: %s")
 		}
 	}
 	return nil
